@@ -221,13 +221,19 @@ chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
 	theme: "light2",
 	title:{
-		text: "Simple Line Chart"
+		text: "Conway's Chart of Life"
 	},
 	data: [{
 		type: "line",
       	indexLabelFontSize: 16,
 		dataPoints: datem
-	}]
+	}],
+  axisY: {
+    title: "Population"
+  }, 
+  axisX: {
+      title: "Generation"
+  }
 });
 chart.render();
 }
