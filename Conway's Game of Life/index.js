@@ -16,9 +16,14 @@ let datem = [
 ];
 let myChart;
 
-
+window.onresize = resizeMap;
 getInitialSize();
 start(mapHeight, mapWidth);
+
+function resizeMap(){
+  getInitialSize();
+  start(mapHeight, mapWidth);
+}
 
 function getInitialSize(){
   mapHeight = Math.floor((document.documentElement.clientHeight / 45) /1.5);
