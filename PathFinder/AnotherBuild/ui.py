@@ -1,7 +1,7 @@
 import tkinter as tk
 import PathFinderDijkstraV4 as Dijk
 import PathFinderV9 as dfs
-import astarV4 as aStar
+import astarV3 as aStar
 
 class ui():
     def __init__(self):
