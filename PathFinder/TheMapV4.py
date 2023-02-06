@@ -95,14 +95,21 @@ class TheMap:
         myffont = pg.font.Font('freesansbold.ttf', 8)
         text = myfont.render(str(node.getDist()), True, (0,0,0))
         textf = myffont.render(str(node.getGScore()), True, (0,0,0))
+        texth = myffont.render(str(node.getHScore()), True, (0,0,0))
+
         textfRect = text.get_rect()
         textfRect.center = (32*x+16, 32*y+8)
 
         textRect = text.get_rect()
         textRect.center = (32*x+16, 32*y+16)
 
+        textHRect = text.get_rect()
+        textHRect.center = (32*x+16, 32*y+26)
+
         self.Frame.blit(text, textRect)
         self.Frame.blit(textf, textfRect)
+        self.Frame.blit(texth, textHRect)
+
         pg.display.update()
 
 

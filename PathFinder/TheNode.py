@@ -59,7 +59,7 @@ class Node:
         self.HScore = h
 
     def getHScore(self):
-        return(self.HScore)
+        return(round(self.HScore, 2))
 
     def setColour(self, colour):
         self.colour = colour

@@ -23,13 +23,14 @@ class pathfinder():
 
     def startPath(self, initial):
         currentSet = [initial]
-        running = 1
-        while running == 1:
+        running = True
+        while running:
             nodes = []
             for current in currentSet:
                 if current.value == "End":
                     self.drawShortest(current)
-                    return()
+                    running = False
+                    break
                 
                 if current.getVisited() == False:
                     #print(current.getVisited(), "form hererer")
@@ -98,19 +99,19 @@ class pathfinder():
         self.Map = tMap.TheMap(rows, cols)
 
         running = True
-        while running == True:
+        while running:
             for event in pg.event.get():
                 if event.type == QUIT:
                     running = False
                     
-                if pg.mouse.get_pressed()[0]:
+                if pg.mouse.get_pressed()[0] and not pg.key.get_pressed()[K_LSHIFT]:
                     pos = pg.mouse.get_pos()
                     pos = self.Map.getPos(pos)
                     if(self.Map.SetStart(pos)):  #bug this modules start is different than the start on the map module
                         x, y = pos
                         start = [x, y]
 
-                if pg.mouse.get_pressed()[1]:
+                if pg.mouse.get_pressed()[1] or (pg.key.get_pressed()[K_LSHIFT] and pg.mouse.get_pressed()[0]):
                     pos = pg.mouse.get_pos()
                     pos = self.Map.getPos(pos)
                     
@@ -126,7 +127,12 @@ class pathfinder():
 
                 if pg.key.get_pressed()[K_SPACE]:
                     self.startPath(self.Map.mat[start[0]][start[1]])
+                    print(running)
+                    # running = False
+                    
+                    break
 
+        print("Ended")
         self.Map.quitMap()
 
 #pathfinderSetUp()

@@ -20,7 +20,7 @@ class pathfinder():
 
         running = True
         while running:
-            time.sleep(0.05)
+            time.sleep(0.03)
             self.currentSet = self.survey(best)
             self.evaluate(best)
             self.openSet.extend(self.currentSet)
@@ -96,14 +96,12 @@ class pathfinder():
         moves = [self.Map.mat[x][y-1], self.Map.mat[x][y+1], self.Map.mat[x-1][y], self.Map.mat[x+1][y]]
         openMoves = []
         for i in moves:
-            
             if(i.getValue()!="Checked" and i.getValue()!="End" and i.getValue()!="Start" and self.check(i)==True):
                 self.Map.setNext(i.getPos())
                     
-
             if(self.check(i)==True and i.getValue()!="Start" and i.getValue()!="Checked"):
                 openMoves.append(i)
-                
+                 
             else:
                 pass
                 

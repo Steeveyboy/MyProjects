@@ -31,7 +31,7 @@ class pathfinder:
                 if event.type == QUIT:
                     running = False
                     
-                if pg.mouse.get_pressed()[0]:
+                if pg.mouse.get_pressed()[0] and not pg.key.get_pressed()[K_LSHIFT]:
                     pos = pg.mouse.get_pos()
                     pos = self.Map.getPos(pos)
                     #print(pos)
@@ -39,7 +39,7 @@ class pathfinder:
                     x, y = pos
                     start = [x, y]
 
-                if pg.mouse.get_pressed()[1]:
+                if pg.mouse.get_pressed()[1] or (pg.key.get_pressed()[K_LSHIFT] and pg.mouse.get_pressed()[0]):
                     pos = pg.mouse.get_pos()
                     pos = self.Map.getPos(pos)
                     #print(pos)
@@ -56,7 +56,7 @@ class pathfinder:
                 if pg.key.get_pressed()[K_SPACE]:
                     #print(start, Map.mat[start[0]][start[1]].getPos())
                     self.step(self.Map.mat[start[0]][start[1]], start)
-
+                    break
                 
         self.Map.quitMap()
 
