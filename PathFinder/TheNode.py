@@ -11,6 +11,8 @@ green = (0,200,0)
 
 colourDict = {"Open":white, "Start":blue, "End":red, "Bloc":black, "Crossed":yellow, "Dead":orange, "Best":purple,"Next":green, "Checked":turquoise}
 
+SIZE_OF_BLOCK = 32
+
 class Node:
     def __init__(self):
         self.tick = 0
@@ -32,8 +34,8 @@ class Node:
         return self.value
 
     def getPos(self):
-        x = self.cord[0]//32
-        y = self.cord[1]//32
+        x = self.cord[0]//SIZE_OF_BLOCK
+        y = self.cord[1]//SIZE_OF_BLOCK
         
         return((x,y))
     

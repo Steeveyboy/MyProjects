@@ -13,6 +13,8 @@ white = (255,255,255)
 orange = (255, 150, 0)
 turquoise = (64,224,208)
 
+SIZE_OF_BLOCK = 32
+
 
 class TheMap:
     def quitMap(self):
@@ -22,7 +24,7 @@ class TheMap:
         x, y = pos
         if self.mat[x][y].value != "Start" and self.start == None:
             self.mat[x][y].setValue("Start")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x), (32*y),32,32))
+            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
             self.start = self.mat[x][y]
             self.mat[x][y].setDist(0)
             self.mat[x][y].setGScore(0)
@@ -32,8 +34,8 @@ class TheMap:
         elif self.mat[x][y].value == "Start":
             self.mat[x][y].setValue("Open")
             self.mat[x][y].setDist(float('inf'))
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x), (32*y),32,32))
-            pg.draw.rect(self.Frame, (0,0,0), ((32*x), (32*y),32,32), 1)
+            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+            pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
             self.start = None
             pg.display.update()
             return(True)
@@ -43,50 +45,49 @@ class TheMap:
     def SetBloc(self, pos):
         x, y = pos
         self.mat[x][y].setValue("Bloc")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x),(32*y),32,32))
+        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def setBest(self, pos):
         x, y = pos
         self.mat[x][y].setValue("Best")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x),(32*y),32,32))
+        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
  
     def setCrossed(self, pos):
         x, y = pos
         self.mat[x][y].setValue("Crossed")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x),(32*y),32,32))
+        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def setChecked(self, pos):
         x, y = pos
-        if self.mat[x][y].value is "Start":
-            #print("nope")
+        if self.mat[x][y].value == "Start":
             return
+        
         self.mat[x][y].setValue("Checked")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x),(32*y),32,32))
+        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def SetEnd(self, pos):
         x, y = pos
-        
         if self.mat[x][y].value != "End" and self.end == None:
             self.mat[x][y].setValue("End")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x), (32*y),32,32))
+            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
             self.end = self.mat[x][y]
 
         elif self.mat[x][y].value == "End":
             self.mat[x][y].setValue("Open")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((32*x), (32*y),32,32))
-            pg.draw.rect(self.Frame, (0,0,0), ((32*x), (32*y),32,32), 1)
+            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+            pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
             self.end = None
         
         pg.display.update()
 
     def setNext(self, pos):
         x, y = pos
-        #pg.draw.circle(self.Frame, (0,0,0), ((32*x + 16), (32*y + 16)), 10, 4)
-        pg.draw.rect(self.Frame, (0, 200, 0), ((32*x), (32*y),32,32))
+        #pg.draw.circle(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x + 16), (SIZE_OF_BLOCK*y + 16)), 10, 4)
+        pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def displayScore(self, node):
@@ -98,13 +99,13 @@ class TheMap:
         texth = myffont.render(str(node.getHScore()), True, (0,0,0))
 
         textfRect = text.get_rect()
-        textfRect.center = (32*x+16, 32*y+8)
+        textfRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+8)
 
         textRect = text.get_rect()
-        textRect.center = (32*x+16, 32*y+16)
+        textRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+16)
 
         textHRect = text.get_rect()
-        textHRect.center = (32*x+16, 32*y+26)
+        textHRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+26)
 
         self.Frame.blit(text, textRect)
         self.Frame.blit(textf, textfRect)
@@ -116,8 +117,8 @@ class TheMap:
     def getPos(self, pos):
         x, y = pos
         
-        xVal = x // 32
-        yVal = y // 32
+        xVal = x // SIZE_OF_BLOCK
+        yVal = y // SIZE_OF_BLOCK
 
         pos = (xVal, yVal)
         
@@ -134,8 +135,9 @@ class TheMap:
 
         #cols = 16
         #rows = 16
+        
         self.root = pg.init()
-        Frame = pg.display.set_mode((32*cols,32*rows))
+        Frame = pg.display.set_mode((SIZE_OF_BLOCK*cols,SIZE_OF_BLOCK*rows))
         self.Frame = Frame
         pg.display.set_caption("Pathfinding")
         white = (255,255,255)
@@ -145,28 +147,27 @@ class TheMap:
         #Setting up the Frame
         self.mat = []
         for c in range(cols):
-            self.x = []
+            x = []
             for r in range(rows):
-                pg.draw.rect(Frame, (0,0,0), ((32*c),32*r,32,32), 1)
+                pg.draw.rect(Frame, (0,0,0), ((SIZE_OF_BLOCK*c),SIZE_OF_BLOCK*r,SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
                 node = Node.Node()
                 node.setValue("Open")
-                node.setCord([32*c, 32*r])
-                self.x.append(node)
+                node.setCord([SIZE_OF_BLOCK*c, SIZE_OF_BLOCK*r])
+                x.append(node)
                 #pg.display.update()
-            self.mat.append(self.x)
+            self.mat.append(x)
 
         for r in range(rows):
                 self.mat[0][r].setValue("Bloc")
-                pg.draw.rect(self.Frame, self.mat[0][r].colour, ((0),(32*r),32,32))
+                pg.draw.rect(self.Frame, self.mat[0][r].colour, ((0),(SIZE_OF_BLOCK*r),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
                 self.mat[cols-1][r].setValue("Bloc")
-                pg.draw.rect(self.Frame, self.mat[cols-1][r].colour, ((32*(cols-1)),(32*r),32,32))
+                pg.draw.rect(self.Frame, self.mat[cols-1][r].colour, ((SIZE_OF_BLOCK*(cols-1)),(SIZE_OF_BLOCK*r),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
 
         for c in range(cols):
                 self.mat[c][0].setValue("Bloc")
-                pg.draw.rect(self.Frame, self.mat[c][0].colour, ((32*c),(0),32,32))
+                pg.draw.rect(self.Frame, self.mat[c][0].colour, ((SIZE_OF_BLOCK*c),(0),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
                 self.mat[c][rows-1].setValue("Bloc")
-                pg.draw.rect(self.Frame, self.mat[c][rows-1].colour, ((32*c),32*(rows-1),32,32))
-
+                pg.draw.rect(self.Frame, self.mat[c][rows-1].colour, ((SIZE_OF_BLOCK*c),SIZE_OF_BLOCK*(rows-1),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
 
         pg.display.update()
                     

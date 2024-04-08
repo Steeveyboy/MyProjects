@@ -1,7 +1,7 @@
 import tkinter as tk
 import PathFinderDijkstraV4 as Dijk
 import PathFinderV9 as dfs
-import astarV4 as aStar
+import Astar as aStar
 
 class ui():
     def __init__(self):
@@ -31,13 +31,13 @@ class ui():
         label1 = tk.Label(text = "height", font='Sans')
         label1.place(x=20, y=50)
         self.height = tk.Entry(canvas, fg='black', bg='white', width=8, bd=4)
-        self.height.insert(0, '16')
+        self.height.insert(0, '20')
         self.height.place(x=80, y=50)
 
         label2 = tk.Label(text = "width", font='Sans')
         label2.place(x=20, y=85)
         self.width = tk.Entry(canvas, fg='black', bg='white', width=8, bd=4)
-        self.width.insert(0,'16')
+        self.width.insert(0,'20')
         self.width.place(x=80, y=85)
 
         canvas.pack()
