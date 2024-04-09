@@ -18,7 +18,7 @@ SIZE_OF_BLOCK = 32
 
 class NodeMap:
     
-    def __init__(self, rows, cols):
+    def __init__(self, cols, rows):
         self.start = None
         self.end = None
         
@@ -42,9 +42,7 @@ class NodeMap:
                 node.setPos(c, r)
                 node.setCord([SIZE_OF_BLOCK*c, SIZE_OF_BLOCK*r])
                 x.append(node)
-                self.drawNodeOnMap(node)
-            time.sleep(0.004)
-            pg.display.update()
+                self.drawNodeOnMap(node, width=0)
             self.mat.append(x)
 
         for r in range(rows):
@@ -63,13 +61,22 @@ class NodeMap:
                 
         pg.display.update()
     
-    def drawNodeOnMap(self, node: Node, width: int = 1):
+    
+    def drawNodeOnMap(self, node: Node, width: int = 0):
+    
+        pg.draw.rect(
+            self.Frame,
+            node.colour, 
+            ((SIZE_OF_BLOCK*node.x_cord), SIZE_OF_BLOCK*node.y_cord, SIZE_OF_BLOCK, SIZE_OF_BLOCK),
+            width
+            )
         pg.draw.rect(
             self.Frame,
             (0,0,0), 
             ((SIZE_OF_BLOCK*node.x_cord), SIZE_OF_BLOCK*node.y_cord, SIZE_OF_BLOCK, SIZE_OF_BLOCK),
-            width
+            width=1
             )
+        
     
     def quitMap(self):
         pg.quit()
@@ -80,14 +87,14 @@ class NodeMap:
             self.mat[x][y].setValue("Start")
             pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
             self.start = self.mat[x][y]
-            self.mat[x][y].setDist(0)
+            self.mat[x][y].setFScore(0)
             self.mat[x][y].setGScore(0)
             pg.display.update()
             return(True)
 
         elif self.mat[x][y].value == "Start":
             self.mat[x][y].setValue("Open")
-            self.mat[x][y].setDist(float('inf'))
+            self.mat[x][y].setFScore(float('inf'))
             pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
             pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
             self.start = None
@@ -99,13 +106,30 @@ class NodeMap:
     def SetBloc(self, pos):
         x, y = pos
         self.mat[x][y].setValue("Bloc")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        self.drawNodeOnMap(self.mat[x][y])
+        # if self.mat[x][y].getValue() == "Bloc":
+        #     print("HELLO")
+        #     node = self.mat[x][y]
+        #     node.setValue("Open")
+        #     # self.mat[x][y].setValue("Open")
+        #     self.drawNodeOnMap(self.mat[x][y], width=0)
+        # else:
+        #     # print("HIII")
+        #     self.mat[x][y].setValue("Bloc")
+        #     # pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        #     self.drawNodeOnMap(self.mat[x][y])
         pg.display.update()
-
-    def setBest(self, pos):
+    
+    def unsetBlock(self, pos):
         x, y = pos
-        self.mat[x][y].setValue("Best")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        self.mat[x][y].setValue("Open")
+        self.drawNodeOnMap(self.mat[x][y])
+        pg.display.update()
+        
+    def setBest(self, node: Node):
+        # x, y = node.getPos()
+        node.setValue("Best")
+        self.drawNodeOnMap(node)
         pg.display.update()
  
     def setCrossed(self, pos):
@@ -114,13 +138,14 @@ class NodeMap:
         pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
-    def setChecked(self, pos):
-        x, y = pos
-        if self.mat[x][y].value == "Start":
+    def setChecked(self, node: Node):
+        
+        if node.value == "Start":
             return
         
-        self.mat[x][y].setValue("Checked")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        node.setValue("Checked")
+        node.setVisited()
+        pg.draw.rect(self.Frame, node.colour, ((SIZE_OF_BLOCK*node.x_cord),(SIZE_OF_BLOCK*node.y_cord),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def SetEnd(self, pos):
@@ -143,12 +168,17 @@ class NodeMap:
         #pg.draw.circle(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x + 16), (SIZE_OF_BLOCK*y + 16)), 10, 4)
         pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
+    
+    def setStorm(self, pos):
+        x, y = pos
+        pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        pg.display.update()
 
     def displayScore(self, node):
         x, y = node.getPos()
         myfont = pg.font.Font('freesansbold.ttf', 12)
         myffont = pg.font.Font('freesansbold.ttf', 8)
-        text = myfont.render(str(node.getDist()), True, (0,0,0))
+        text = myfont.render(str(node.getFScore()), True, (0,0,0))
         textf = myffont.render(str(node.getGScore()), True, (0,0,0))
         texth = myffont.render(str(node.getHScore()), True, (0,0,0))
 
@@ -167,6 +197,36 @@ class NodeMap:
 
         pg.display.update()
 
+    def displayNodeScore(self, node):
+        x, y = node.getPos()
+        myfont = pg.font.Font('freesansbold.ttf', 12)
+        myffont = pg.font.Font('freesansbold.ttf', 8)
+        text = myfont.render(str(node.getFScore()), True, (0,0,0))
+        textf = myffont.render(str(node.getGScore()), True, (0,0,0))
+        texth = myffont.render(str(node.getHScore()), True, (0,0,0))
+
+        textfRect = text.get_rect()
+        textfRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+8)
+
+        textRect = text.get_rect()
+        textRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+16)
+
+        textHRect = text.get_rect()
+        textHRect.center = (SIZE_OF_BLOCK*x+16, SIZE_OF_BLOCK*y+26)
+
+        self.Frame.blit(text, textRect)
+        self.Frame.blit(textf, textfRect)
+        self.Frame.blit(texth, textHRect)
+
+    def displayAllScores(self):
+        
+        for row in self.mat:
+            for node in row:
+                if node.getValue() not in {"Open", "Bloc"}:
+                    self.displayNodeScore(node)
+        
+        pg.display.update()
+        
 
     def getPos(self, pos):
         """Coordinates to position on Map"""

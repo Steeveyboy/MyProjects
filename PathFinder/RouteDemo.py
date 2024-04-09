@@ -1,8 +1,12 @@
-from NewAstar import PathfindingAlgorithm
+from NewAstar import AStarAlgorithm
+import NodeMap as NodeMap
 
 class ui():
     def __init__(self):
-        p = PathfindingAlgorithm(20, 20)
+        # self.Map = NodeMap.NodeMap(rows, cols)
+        
+        
+        p = AStarAlgorithm(30, 24)
     
     # def go(self):
     #     height = int(self.height.get())

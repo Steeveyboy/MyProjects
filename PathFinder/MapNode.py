@@ -18,7 +18,7 @@ class Node:
         self.value = None
         self.cord = [None, None]
         self.colour = None
-        self.distance = float('inf')
+        self.FScore = float('inf')
         self.visited = False
         self.GScore = float('inf')
         self.HScore = float('inf')
@@ -43,11 +43,11 @@ class Node:
     def setCord(self, cord):
         self.cord = cord
 
-    def setDist(self, dist):
-        self.distance = round(dist,2)
+    def setFScore(self, dist):
+        self.FScore = round(dist,2)
     
-    def getDist(self):
-        return(self.distance)
+    def getFScore(self):
+        return(self.FScore)
 
     def setGScore(self, F):
         self.GScore = F
@@ -56,9 +56,12 @@ class Node:
         return(self.GScore)
 
     def setHScore(self, h):
+        """Sets the nodes heuristic score."""
         self.HScore = h
 
-    def getHScore(self):
+    def getHScore(self) -> float:
+        """Returns heuristic score. 
+        In this case the heuristic being returned is the euclidean distance between this node and the end node."""
         return(round(self.HScore, 2))
     
     def setVisited(self):
@@ -68,4 +71,4 @@ class Node:
         return(self.visited)
     
     def __hash__(self):
-        return hash(self.cord)
+        return hash(str(self.cord))
