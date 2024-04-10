@@ -7,9 +7,11 @@ white = (255,255,255)
 orange = (255, 150, 0)
 purple = (200, 0, 160)
 turquoise = (64,224,208)
-green = (0,200,0)
+lightGreen = (0, 200, 0)
+green = (46,147,60)
+brown = (44,20,3)
 
-COLOUR_DICT = {"Open":white, "Start":blue, "End":red, "Bloc":black, "Crossed":yellow, "Dead":orange, "Best":purple,"Next":green, "Checked":turquoise, "Edge": black}
+COLOUR_DICT = {"Open":white, "Start":blue, "End":green, "Bloc":black, "Crossed":yellow, "Dead":orange, "Best":purple,"Next":lightGreen, "Checked":turquoise, "Edge": black}
 
 SIZE_OF_BLOCK = 32
 

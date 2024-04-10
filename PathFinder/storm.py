@@ -1,3 +1,5 @@
+from MapNode import Node
+
 
 class OceanStorm:
     """A class representing an Ocean storm on a Raster Map"""

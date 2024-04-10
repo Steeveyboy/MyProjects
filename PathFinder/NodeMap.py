@@ -165,8 +165,10 @@ class NodeMap:
 
     def setNext(self, pos):
         x, y = pos
+        self.mat[x][y].setValue("Next")
+        self.drawNodeOnMap(self.mat[x][y], width=0)
         #pg.draw.circle(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x + 16), (SIZE_OF_BLOCK*y + 16)), 10, 4)
-        pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
     
     def setStorm(self, pos):
