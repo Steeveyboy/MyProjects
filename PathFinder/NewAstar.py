@@ -6,6 +6,7 @@ from sortedcontainers import SortedSet
 from typing import List
 from math import sqrt
 from abc import abstractmethod
+import time
 
 
 class PathfindingAlgorithm:
@@ -14,54 +15,23 @@ class PathfindingAlgorithm:
     def startPath(self, initial):
         pass
     
-    def __init__(self, rows, cols):
-        self.Map = NodeMap.NodeMap(rows, cols)
+    def __init__(self, node_map: NodeMap):
+        self.Map = node_map
+        self.end = self.Map.end
+        # self.Map = NodeMap.NodeMap(rows, cols)
 
-        running = True
-        while running:
-            for event in pg.event.get():
-                if event.type == QUIT:
-                    running = False
-                    
-                if pg.mouse.get_pressed()[0]:
-                    pos = pg.mouse.get_pos()
-                    pos = self.Map.getPos(pos)
-                    
-                    if pg.key.get_pressed()[K_LSHIFT]:
-                        self.Map.SetBloc(pos)
+        self.startPath(self.Map.start)
 
-                    elif pg.key.get_pressed()[K_s]:
-                        self.Map.setStorm(pos)
-                        
-                    elif pg.key.get_pressed()[K_LCTRL]:
-                        self.Map.unsetBlock(pos)
-                        
-                    else:
-                        if self.Map.SetStart(pos):
-                            self.start = self.Map.start
-
-                if pg.mouse.get_pressed()[2]:
-                    pos = pg.mouse.get_pos()
-                    pos = self.Map.getPos(pos)
-                    self.Map.SetEnd(pos)
-                    self.end = self.Map.end
-                    
-
-                if pg.key.get_pressed()[K_SPACE]:
-                    print("starting")
-                    x, y = self.start.getPos()
-                    running = self.startPath(self.Map.mat[x][y])
-                    break
-                
-                    
-
+        print("Done")
+        time.sleep(1)
+               
         self.Map.quitMap()
 
 class AStarAlgorithm(PathfindingAlgorithm):
     
-    def __init__(self, rows: int, cols: int):
+    def __init__(self, node_map: NodeMap):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
-        super().__init__(rows, cols)
+        super().__init__(node_map)
         
 
     def startPath(self, initial):

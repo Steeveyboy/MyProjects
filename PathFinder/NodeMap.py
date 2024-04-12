@@ -1,7 +1,8 @@
 #this is a try at pygame
 import pygame as pg
-from pygame.locals import *
+from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL
 import time
+# from NewAstar import PathfindingAlgorithm
 
 import MapNode as Node
 
@@ -31,8 +32,57 @@ class NodeMap:
         pg.display.update()
         
         #Setting up the Frame
+        # self.mat = []
+        self.setupBaseMap(cols, rows)
+        self.runMainLoop()
+    
+    def runMainLoop(self):
+
+        running = True
+        while running:
+            for event in pg.event.get():
+                if event.type == QUIT:
+                    running = False
+                    
+                if pg.mouse.get_pressed()[0]:
+                    pos = pg.mouse.get_pos()
+                    pos = self.getPos(pos)
+                    
+                    if pg.key.get_pressed()[K_LSHIFT]:
+                        self.SetBloc(pos)
+
+                    elif pg.key.get_pressed()[K_s]:
+                        self.setStorm(pos)
+                        
+                    elif pg.key.get_pressed()[K_LCTRL]:
+                        self.unsetBlock(pos)
+                        
+                    else:
+                        self.SetStart(pos)
+
+                if pg.mouse.get_pressed()[2]:
+                    pos = pg.mouse.get_pos()
+                    pos = self.getPos(pos)
+                    self.SetEnd(pos)
+                    # self.end = self.Map.end
+                    
+
+                if pg.key.get_pressed()[K_SPACE]:
+                    print("starting")
+                    # x, y = self.start.getPos()
+                    # running = self.startPath(self.Map.mat[x][y])
+                    # break
+                    running = False
+                    break
+                
+                    
+
+        # self.Map.quitMap()
+
+    
+    def setupBaseMap(self, cols, rows):
+        """Draw border along map edge, and open grid nodes."""
         self.mat = []
-        
         for c in range(cols):
             x = []
             for r in range(rows):
@@ -58,9 +108,9 @@ class NodeMap:
                 
                 self.mat[c][rows-1].setValue("Bloc")
                 self.drawNodeOnMap(self.mat[c][rows-1], width=0)
-                
+
         pg.display.update()
-    
+
     
     def drawNodeOnMap(self, node: Node, width: int = 0):
     

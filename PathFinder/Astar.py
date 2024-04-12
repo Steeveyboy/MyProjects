@@ -1,4 +1,4 @@
-import TheMapV4 as Map
+import PathFinder.TheMapV4 as Map
 import TheNode
 import time
 import math
