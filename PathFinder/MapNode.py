@@ -24,6 +24,7 @@ class Node:
         self.visited = False
         self.GScore = float('inf')
         self.HScore = float('inf')
+        self.danger_score = 0
 
     
     def setValue(self, value):

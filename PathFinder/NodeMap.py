@@ -2,6 +2,7 @@
 import pygame as pg
 from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL
 import time
+from storm import OceanStorm
 # from NewAstar import PathfindingAlgorithm
 
 import MapNode as Node
@@ -20,6 +21,8 @@ SIZE_OF_BLOCK = 32
 class NodeMap:
     
     def __init__(self, cols, rows):
+        self.num_rows = rows
+        self.num_cols = cols
         self.start = None
         self.end = None
         
@@ -222,8 +225,26 @@ class NodeMap:
         pg.display.update()
     
     def setStorm(self, pos):
+        print(pos)
+        radius = 2
+
         x, y = pos
-        pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+
+        getColor = lambda i: ((i)/radius) * 230
+
+        top = max(0, y - radius)
+        bottom = min(self.num_rows, y + radius)
+        left = min(0, x - radius)
+        right = max(self.num_cols, x + radius)
+
+        for i in range(top, bottom+1):
+            for j in range(left, right+1):
+                place = abs(i - y) + abs(j - x)
+                if place <= radius:
+                    colour = getColor(place)
+                    pg.draw.rect(self.Frame, (225, colour, 0), ((SIZE_OF_BLOCK*j), (SIZE_OF_BLOCK*i),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+                    
+        # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def displayScore(self, node):
