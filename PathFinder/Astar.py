@@ -23,9 +23,9 @@ class PathfindingAlgorithm:
         self.startPath(self.Map.start)
 
         print("Done")
-        time.sleep(1)
+        # time.sleep(1)
                
-        self.Map.quitMap()
+        # self.Map.quitMap()
 
 class AStarAlgorithm(PathfindingAlgorithm):
     
@@ -44,8 +44,8 @@ class AStarAlgorithm(PathfindingAlgorithm):
             
             if select_node.value == "End":
                 
-                print("Shortest has been drawn")
                 self.drawShortest(select_node)
+                print("Shortest has been drawn")
                 self.Map.displayAllScores()
                 return(True)
             
@@ -95,7 +95,8 @@ class AStarAlgorithm(PathfindingAlgorithm):
         if f_score < dest_node.FScore:
             dest_node.setGScore(g_score)
             dest_node.setHScore(h_score)
-            dest_node.setFScore(f_score)
+            dest_node.calcFScore()
+            # dest_node.setFScore(f_score)
     
     
     def markNodes(self, node_list: List[Node]):

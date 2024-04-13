@@ -1,4 +1,4 @@
-from NewAstar import AStarAlgorithm
+from Astar import AStarAlgorithm
 from NodeMap import NodeMap
 
 class ui():
@@ -6,7 +6,8 @@ class ui():
         # self.Map = NodeMap.NodeMap(rows, cols)
         node_map = NodeMap(30, 24)
         
-        # p = AStarAlgorithm(node_map)
+        p = AStarAlgorithm(node_map)
+        # node_map.waitOnQuit()
     
     # def go(self):
     #     height = int(self.height.get())

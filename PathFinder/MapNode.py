@@ -56,14 +56,25 @@ class Node:
     def setCord(self, cord):
         self.cord = cord
 
+    def calcFScore(self):
+        f_score = (self.GScore + self.HScore)
+        
+        if self.danger_score < 1:
+            f_score = f_score / (1-self.danger_score)
+        else:
+            f_score = float('inf')
+
+        self.FScore = round(f_score, 2)
+
+
     def setFScore(self, dist):
         self.FScore = round(dist,2)
     
     def getFScore(self):
         return(self.FScore)
 
-    def setGScore(self, F):
-        self.GScore = F
+    def setGScore(self, G):
+        self.GScore = G
     
     def getGScore(self):
         return(self.GScore)
@@ -89,7 +100,12 @@ class Node:
     def setHazardPoint(self, safety_score):
         hazard_colour = (225, ((safety_score) * 230), 0)
         self.colour = hazard_colour
-        self.value = "Hazard"
+        # self.value = "Hazard"
         self.danger_score = 1-safety_score
+
+        if safety_score > 0:
+            self.FScore = self.FScore / safety_score
+        else:
+            self.FScore = float('inf')
 
         

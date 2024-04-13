@@ -1,6 +1,6 @@
 #this is a try at pygame
 import pygame as pg
-from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL
+from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL, K_l, MOUSEMOTION
 import time
 from storm import OceanStorm
 # from NewAstar import PathfindingAlgorithm
@@ -17,7 +17,6 @@ turquoise = (64,224,208)
 
 SIZE_OF_BLOCK = 32
 
-
 class NodeMap:
     
     def __init__(self, cols, rows):
@@ -27,7 +26,9 @@ class NodeMap:
         self.end = None
         
         self.root = pg.init()
+
         Frame = pg.display.set_mode((SIZE_OF_BLOCK*cols,SIZE_OF_BLOCK*rows))
+
         self.Frame = Frame
         pg.display.set_caption("Pathfinding")
         white = (255,255,255)
@@ -35,7 +36,6 @@ class NodeMap:
         pg.display.update()
         
         #Setting up the Frame
-        # self.mat = []
         self.setupBaseMap(cols, rows)
         self.runMainLoop()
     
@@ -43,11 +43,13 @@ class NodeMap:
 
         running = True
         while running:
-            for event in pg.event.get():
+            for event in pg.event.get(pump=False):
+                # print(event)
                 if event.type == QUIT:
                     running = False
                     
                 if pg.mouse.get_pressed()[0]:
+                    print("CLICK")
                     pos = pg.mouse.get_pos()
                     pos = self.getPos(pos)
                     
@@ -56,6 +58,9 @@ class NodeMap:
 
                     elif pg.key.get_pressed()[K_s]:
                         self.setStorm(pos)
+                    #     # time.sleep(1)
+                    #     # self.storm.cleanUPStorm(self.mat, self)
+                        pg.display.update()
                         
                     elif pg.key.get_pressed()[K_LCTRL]:
                         self.unsetBlock(pos)
@@ -66,8 +71,14 @@ class NodeMap:
                 if pg.mouse.get_pressed()[2]:
                     pos = pg.mouse.get_pos()
                     pos = self.getPos(pos)
-                    self.SetEnd(pos)
-                    # self.end = self.Map.end
+
+                    if pg.key.get_pressed()[K_s]:
+                        print("BONJOUR")
+                        self.storm.setStormEnd(pos)
+
+                    else:
+                        self.SetEnd(pos)
+                        # self.end = self.Map.end
                     
 
                 if pg.key.get_pressed()[K_SPACE]:
@@ -77,10 +88,18 @@ class NodeMap:
                     # break
                     running = False
                     break
-                
-                    
 
-        # self.Map.quitMap()
+                if pg.key.get_pressed()[K_l]:
+                    print("Next Turn for storm")
+                    # self.storm.moveStorm(self.mat, self)
+                    # pg.display.update()
+
+    def waitOnQuit(self):
+        running = True
+        while running:
+            if pg.event.get(QUIT):
+                running = False
+                self.quitMap()
 
     
     def setupBaseMap(self, cols, rows):
@@ -160,17 +179,7 @@ class NodeMap:
         x, y = pos
         self.mat[x][y].setValue("Bloc")
         self.drawNodeOnMap(self.mat[x][y])
-        # if self.mat[x][y].getValue() == "Bloc":
-        #     print("HELLO")
-        #     node = self.mat[x][y]
-        #     node.setValue("Open")
-        #     # self.mat[x][y].setValue("Open")
-        #     self.drawNodeOnMap(self.mat[x][y], width=0)
-        # else:
-        #     # print("HIII")
-        #     self.mat[x][y].setValue("Bloc")
-        #     # pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-        #     self.drawNodeOnMap(self.mat[x][y])
+
         pg.display.update()
     
     def unsetBlock(self, pos):
@@ -237,7 +246,7 @@ class NodeMap:
         left = min(0, x - radius)
         right = max(self.num_cols, x + radius)
 
-        storm = OceanStorm(x, y, self.mat, self.Frame)
+        self.storm = OceanStorm(x, y, self.mat, self)
 
         # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
@@ -310,7 +319,3 @@ class NodeMap:
 
     def getMat(self):
         return(self.mat)
-        
-
-
-                    
