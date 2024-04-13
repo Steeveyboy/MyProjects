@@ -43,7 +43,7 @@ class NodeMap:
 
         running = True
         while running:
-            for event in pg.event.get(pump=False):
+            for event in pg.event.get():
                 # print(event)
                 if event.type == QUIT:
                     running = False
@@ -58,7 +58,6 @@ class NodeMap:
 
                     elif pg.key.get_pressed()[K_s]:
                         self.setStorm(pos)
-                    #     # time.sleep(1)
                     #     # self.storm.cleanUPStorm(self.mat, self)
                         pg.display.update()
                         

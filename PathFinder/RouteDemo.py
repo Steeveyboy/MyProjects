@@ -7,7 +7,7 @@ class ui():
         node_map = NodeMap(30, 24)
         
         p = AStarAlgorithm(node_map)
-        # node_map.waitOnQuit()
+        node_map.waitOnQuit()
     
     # def go(self):
     #     height = int(self.height.get())

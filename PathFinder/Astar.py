@@ -23,7 +23,6 @@ class PathfindingAlgorithm:
         self.startPath(self.Map.start)
 
         print("Done")
-        # time.sleep(1)
                
         # self.Map.quitMap()
 
