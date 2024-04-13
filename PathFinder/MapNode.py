@@ -11,7 +11,17 @@ lightGreen = (0, 200, 0)
 green = (46,147,60)
 brown = (44,20,3)
 
-COLOUR_DICT = {"Open":white, "Start":blue, "End":green, "Bloc":black, "Crossed":yellow, "Dead":orange, "Best":purple,"Next":lightGreen, "Checked":turquoise, "Edge": black}
+COLOUR_DICT = {"Open":white, 
+               "Start":blue, 
+               "End":green, 
+               "Bloc":black, 
+               "Crossed":yellow, 
+               "Dead":orange, 
+               "Best":purple,
+               "Next":lightGreen, 
+               "Checked":turquoise, 
+               "Edge": black,
+               "Hazard": orange}
 
 SIZE_OF_BLOCK = 32
 
@@ -75,3 +85,11 @@ class Node:
     
     def __hash__(self):
         return hash(str(self.cord))
+    
+    def setHazardPoint(self, safety_score):
+        hazard_colour = (225, ((safety_score) * 230), 0)
+        self.colour = hazard_colour
+        self.value = "Hazard"
+        self.danger_score = 1-safety_score
+
+        

@@ -225,7 +225,7 @@ class NodeMap:
         pg.display.update()
     
     def setStorm(self, pos):
-        print(pos)
+        # print(pos)
         radius = 2
 
         x, y = pos
@@ -237,13 +237,8 @@ class NodeMap:
         left = min(0, x - radius)
         right = max(self.num_cols, x + radius)
 
-        for i in range(top, bottom+1):
-            for j in range(left, right+1):
-                place = abs(i - y) + abs(j - x)
-                if place <= radius:
-                    colour = getColor(place)
-                    pg.draw.rect(self.Frame, (225, colour, 0), ((SIZE_OF_BLOCK*j), (SIZE_OF_BLOCK*i),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-                    
+        storm = OceanStorm(x, y, self.mat, self.Frame)
+
         # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
