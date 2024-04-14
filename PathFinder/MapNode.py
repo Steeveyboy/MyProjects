@@ -43,6 +43,10 @@ class Node:
         self.GScore = float('inf')
         self.HScore = float('inf')
         self.danger_score = 0
+
+        if self.value not in {"Bloc", "End"}:
+            self.setValue("Open")
+
         
     
     def setValue(self, value):

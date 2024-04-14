@@ -3,10 +3,13 @@ import pygame as pg
 
 SIZE_OF_BLOCK = 32
 
+
+
 class OceanStorm:
     """A class representing an Ocean storm on a Raster Map"""
     
     def __init__(self, x, y, Map, Frame, radius=3):
+
         self.x = x
         self.y = y
         self.stormStart = (x, y)
@@ -20,7 +23,7 @@ class OceanStorm:
         if not self.stormEnd:
             self.stormEnd = pos
     
-    def moveStorm(self, mat, node_map):
+    def move(self, mat, node_map):
         """This function will redraw the storm on the map"""
         print(f"MOVING STORM FROM {self.x}, {self.y}", end=" ")
         self.cleanUPStorm(mat, node_map)

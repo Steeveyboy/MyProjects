@@ -24,6 +24,10 @@ class NodeMap:
         self.num_cols = cols
         self.start = None
         self.end = None
+
+        self.storm = None
+
+        self.update_each_frame = True
         
         self.root = pg.init()
 
@@ -43,13 +47,13 @@ class NodeMap:
 
         running = True
         while running:
-            for event in pg.event.get():
+            for event in pg.event.get(pump=True):
                 # print(event)
                 if event.type == QUIT:
                     running = False
                     
                 if pg.mouse.get_pressed()[0]:
-                    print("CLICK")
+                    # print("CLICK")
                     pos = pg.mouse.get_pos()
                     pos = self.getPos(pos)
                     
@@ -72,7 +76,7 @@ class NodeMap:
                     pos = self.getPos(pos)
 
                     if pg.key.get_pressed()[K_s]:
-                        print("BONJOUR")
+                        # print("BONJOUR")
                         self.storm.setStormEnd(pos)
 
                     else:
@@ -81,7 +85,7 @@ class NodeMap:
                     
 
                 if pg.key.get_pressed()[K_SPACE]:
-                    print("starting")
+                    # print("starting")
                     # x, y = self.start.getPos()
                     # running = self.startPath(self.Map.mat[x][y])
                     # break
@@ -92,17 +96,26 @@ class NodeMap:
                     print("Next Turn for storm")
                     # self.storm.moveStorm(self.mat, self)
                     # pg.display.update()
+                print(event)
 
     def waitOnQuit(self):
+        print("Waiting for user Exit")
         running = True
         while running:
             if pg.event.get(QUIT):
                 running = False
                 self.quitMap()
 
+    def resetNodes(self):
+        for row in self.mat:
+            for node in row:
+                node.resetAnalysis()
+                self.drawNodeOnMap(node)
+
     def updateMapObjects(self):
-        self.storm.moveStorm(self.mat, self)
-        # TODO RESET Map analysis
+        self.resetNodes()
+        if self.storm:
+            self.storm.move(self.mat, self)
         pg.display.update()
 
     
@@ -157,27 +170,22 @@ class NodeMap:
     def quitMap(self):
         pg.quit()
 
+
     def SetStart(self, pos):
         x, y = pos
-        if self.mat[x][y].value != "Start" and self.start == None:
-            self.mat[x][y].setValue("Start")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-            self.start = self.mat[x][y]
-            self.mat[x][y].setFScore(0)
-            self.mat[x][y].setGScore(0)
-            pg.display.update()
-            return(True)
 
-        elif self.mat[x][y].value == "Start":
-            self.mat[x][y].setValue("Open")
-            self.mat[x][y].setFScore(float('inf'))
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-            pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
-            self.start = None
-            pg.display.update()
-            return(True)
-        
-        return(False)
+        if self.start:
+            self.start.resetAnalysis()
+            self.drawNodeOnMap(self.start)
+
+        self.start = self.mat[x][y]
+        self.start.setValue("Start")
+        self.start.setFScore(0)
+        self.start.setGScore(0)
+        self.drawNodeOnMap(self.start)
+        pg.display.update()
+        print(self.start.getPos())
+        return True
 
     def SetBloc(self, pos):
         x, y = pos
@@ -196,13 +204,11 @@ class NodeMap:
         # x, y = node.getPos()
         node.setValue("Best")
         self.drawNodeOnMap(node)
+
+        # if self.update_each_frame:
+
         pg.display.update()
  
-    def setCrossed(self, pos):
-        x, y = pos
-        self.mat[x][y].setValue("Crossed")
-        pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x),(SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-        pg.display.update()
 
     def setChecked(self, node: Node):
         
@@ -212,7 +218,8 @@ class NodeMap:
         node.setValue("Checked")
         node.setVisited()
         pg.draw.rect(self.Frame, node.colour, ((SIZE_OF_BLOCK*node.x_cord),(SIZE_OF_BLOCK*node.y_cord),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-        pg.display.update()
+        if self.update_each_frame:
+            pg.display.update()
 
     def SetEnd(self, pos):
         x, y = pos
@@ -235,7 +242,8 @@ class NodeMap:
         self.drawNodeOnMap(self.mat[x][y], width=0)
         #pg.draw.circle(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x + 16), (SIZE_OF_BLOCK*y + 16)), 10, 4)
         # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-        pg.display.update()
+        if self.update_each_frame:
+            pg.display.update()
     
     def setStorm(self, pos):
         # print(pos)
@@ -276,7 +284,8 @@ class NodeMap:
         self.Frame.blit(textf, textfRect)
         self.Frame.blit(texth, textHRect)
 
-        pg.display.update()
+        if self.update_each_frame:
+            pg.display.update()
 
     def displayNodeScore(self, node):
         x, y = node.getPos()

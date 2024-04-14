@@ -34,23 +34,26 @@ class AStarAlgorithm(PathfindingAlgorithm):
 
     def flushSet(self):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
-        
 
     def startPath(self, initial):
-        print("HELLO")
+        print("Starting Path")
         self.flushSet()
         self.openSet.add(initial)
+        # print(initial)
+        # print(self.openSet)
         # self.survey(initial)
         running = True
         while running:
             select_node = self.openSet.pop(0)
             
-            if select_node.value == "End":
-                
+            if select_node.value == "End":  
                 shortest_path = self.drawShortest(select_node)
                 print("Shortest has been drawn")
-                self.Map.displayAllScores()
-                return shortest_path
+                # self.Map.displayAllScores()
+                if shortest_path:
+                    return shortest_path
+                else:
+                    return [self.end]
             
             self.survey(select_node)
             self.Map.setChecked(select_node)
@@ -71,8 +74,7 @@ class AStarAlgorithm(PathfindingAlgorithm):
         x, y = select_node.getPos()
         
         moves = self.getNeighbors(select_node)
-        # moves = [self.Map.mat[x][y-1], self.Map.mat[x][y+1], self.Map.mat[x-1][y], self.Map.mat[x+1][y]]
-        
+
         for node in moves:
             node_value = node.getValue()
             if node_value == "Open":
@@ -102,6 +104,7 @@ class AStarAlgorithm(PathfindingAlgorithm):
             # dest_node.setFScore(f_score)
     
     
+
     def markNodes(self, node_list: List[Node]):
         """Mark neighbording ndoes on map."""
         for node in node_list:
