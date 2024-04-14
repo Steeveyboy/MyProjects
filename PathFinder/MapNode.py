@@ -36,6 +36,14 @@ class Node:
         self.HScore = float('inf')
         self.danger_score = 0
 
+    def resetAnalysis(self):
+        """Resets all variables that may be set by an analysis algorithm"""
+        self.FScore = float('inf')
+        self.visited = False
+        self.GScore = float('inf')
+        self.HScore = float('inf')
+        self.danger_score = 0
+        
     
     def setValue(self, value):
         self.value = value

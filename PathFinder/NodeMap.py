@@ -100,6 +100,11 @@ class NodeMap:
                 running = False
                 self.quitMap()
 
+    def updateMapObjects(self):
+        self.storm.moveStorm(self.mat, self)
+        # TODO RESET Map analysis
+        pg.display.update()
+
     
     def setupBaseMap(self, cols, rows):
         """Draw border along map edge, and open grid nodes."""

@@ -20,7 +20,7 @@ class PathfindingAlgorithm:
         self.end = self.Map.end
         # self.Map = NodeMap.NodeMap(rows, cols)
 
-        self.startPath(self.Map.start)
+        # self.startPath(self.Map.start)
 
         print("Done")
                
@@ -31,10 +31,14 @@ class AStarAlgorithm(PathfindingAlgorithm):
     def __init__(self, node_map: NodeMap):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
         super().__init__(node_map)
+
+    def flushSet(self):
+        self.openSet = SortedSet({}, key=lambda node: node.FScore)
         
 
     def startPath(self, initial):
         print("HELLO")
+        self.flushSet()
         self.openSet.add(initial)
         # self.survey(initial)
         running = True
@@ -43,10 +47,10 @@ class AStarAlgorithm(PathfindingAlgorithm):
             
             if select_node.value == "End":
                 
-                self.drawShortest(select_node)
+                shortest_path = self.drawShortest(select_node)
                 print("Shortest has been drawn")
                 self.Map.displayAllScores()
-                return(True)
+                return shortest_path
             
             self.survey(select_node)
             self.Map.setChecked(select_node)
@@ -111,10 +115,10 @@ class AStarAlgorithm(PathfindingAlgorithm):
         best_node = nodes[0]
         for node in nodes:
             if node.value == "Start":
-                return
+                return []
             elif (node.getGScore() <= best_node.getGScore()) and node.visited:
                 if(node.getFScore() < best_node.getFScore()):
                     best_node = node
                 
         self.Map.setBest(best_node)
-        self.drawShortest(best_node)
+        return [best_node] + self.drawShortest(best_node)
