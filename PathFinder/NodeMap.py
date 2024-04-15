@@ -48,12 +48,10 @@ class NodeMap:
         running = True
         while running:
             for event in pg.event.get(pump=True):
-                # print(event)
                 if event.type == QUIT:
                     running = False
                     
                 if pg.mouse.get_pressed()[0]:
-                    # print("CLICK")
                     pos = pg.mouse.get_pos()
                     pos = self.getPos(pos)
                     
@@ -76,7 +74,6 @@ class NodeMap:
                     pos = self.getPos(pos)
 
                     if pg.key.get_pressed()[K_s]:
-                        # print("BONJOUR")
                         self.storm.setStormEnd(pos)
 
                     else:
@@ -85,18 +82,14 @@ class NodeMap:
                     
 
                 if pg.key.get_pressed()[K_SPACE]:
-                    # print("starting")
-                    # x, y = self.start.getPos()
-                    # running = self.startPath(self.Map.mat[x][y])
-                    # break
                     running = False
                     break
 
-                if pg.key.get_pressed()[K_l]:
-                    print("Next Turn for storm")
-                    # self.storm.moveStorm(self.mat, self)
-                    # pg.display.update()
-                print(event)
+                # if pg.key.get_pressed()[K_l]:
+                #     print("Next Turn for storm")
+                #     # self.storm.moveStorm(self.mat, self)
+                #     # pg.display.update()
+                # print(event)
 
     def waitOnQuit(self):
         print("Waiting for user Exit")
@@ -152,7 +145,6 @@ class NodeMap:
 
     
     def drawNodeOnMap(self, node: Node, width: int = 0):
-    
         pg.draw.rect(
             self.Frame,
             node.colour, 
@@ -184,7 +176,7 @@ class NodeMap:
         self.start.setGScore(0)
         self.drawNodeOnMap(self.start)
         pg.display.update()
-        print(self.start.getPos())
+        
         return True
 
     def SetBloc(self, pos):
@@ -246,21 +238,9 @@ class NodeMap:
             pg.display.update()
     
     def setStorm(self, pos):
-        # print(pos)
-        radius = 2
-
         x, y = pos
-
-        getColor = lambda i: ((i)/radius) * 230
-
-        top = max(0, y - radius)
-        bottom = min(self.num_rows, y + radius)
-        left = min(0, x - radius)
-        right = max(self.num_cols, x + radius)
-
         self.storm = OceanStorm(x, y, self.mat, self)
 
-        # pg.draw.rect(self.Frame, (0, 200, 0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         pg.display.update()
 
     def displayScore(self, node):
@@ -332,3 +312,56 @@ class NodeMap:
 
     def getMat(self):
         return(self.mat)
+
+
+class TemporalNodeMap(NodeMap):
+    def __init__(self, cols, rows) -> None:
+        super().__init__(cols, rows)
+        
+
+    def setupBaseMap(self, cols, rows):
+        """Draw border along map edge, and open grid nodes."""
+        self.mat = []
+        for c in range(cols):
+            x = []
+            for r in range(rows):
+                
+                node = Node.TemporalNode()
+                node.setValue("Open")
+                node.setPos(c, r)
+                node.setCord([SIZE_OF_BLOCK*c, SIZE_OF_BLOCK*r])
+                x.append(node)
+                self.drawNodeOnMap(node, width=0)
+            self.mat.append(x)
+
+        for r in range(rows):
+                self.mat[0][r].setValue("Bloc")
+                self.drawNodeOnMap(self.mat[0][r], width=0)
+
+                self.mat[cols-1][r].setValue("Bloc")
+                self.drawNodeOnMap(self.mat[cols-1][r], width=0)
+
+        for c in range(cols):
+                self.mat[c][0].setValue("Bloc")
+                self.drawNodeOnMap(self.mat[c][0], width=0)
+                
+                self.mat[c][rows-1].setValue("Bloc")
+                self.drawNodeOnMap(self.mat[c][rows-1], width=0)
+        pg.display.update()
+
+    def updateAllPointsDanger(self):
+        for row in self.mat:
+            for node in row:
+                node.appendDangerScore()
+
+    def forcastStorm(self) -> None:
+        print("starting forcast")
+        if self.storm.stormEnd:
+            self.updateAllPointsDanger()
+            while self.storm.getCurrPos() != self.storm.stormEnd:
+                self.storm.move(self.mat, self)
+                self.updateAllPointsDanger()
+                pg.display.update()
+                time.sleep(0.1)
+        # print(self.mat[10][7].danger_scores)
+        pass

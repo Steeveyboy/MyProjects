@@ -23,9 +23,12 @@ class OceanStorm:
         if not self.stormEnd:
             self.stormEnd = pos
     
+    def getCurrPos(self):
+        return (self.x, self.y)
+
     def move(self, mat, node_map):
         """This function will redraw the storm on the map"""
-        print(f"MOVING STORM FROM {self.x}, {self.y}", end=" ")
+        # print(f"MOVING STORM FROM {self.x}, {self.y}", end=" ")
         self.cleanUPStorm(mat, node_map)
         end_x, end_y = self.stormEnd
         if self.x != end_x:
@@ -34,7 +37,7 @@ class OceanStorm:
         if self.y != end_y:
             if self.y < end_y: self.y += 1
             else: self.y -= 1
-        print(f" -> {self.x}, {self.y}")
+        # print(f" -> {self.x}, {self.y}")
         self.drawStorm(mat, node_map)
 
         
@@ -45,6 +48,7 @@ class OceanStorm:
         return ((place)/self.radius) * 230
     
     def cleanUPStorm(self, mat, node_map):
+        print("cleaning up storm")
         for curr_x, curr_y in self.currentStormPoints:
             mat[curr_x][curr_y].danger_score = 0
             mat[curr_x][curr_y].setValue(mat[curr_x][curr_y].value)
@@ -70,5 +74,6 @@ class OceanStorm:
                     self.currentStormPoints.append((j, i))
                     mat[j][i].setHazardPoint(safety_score = (place/self.radius))
                     node_map.drawNodeOnMap(mat[j][i])
+        # pg.display.update
                     # pg.draw.rect(Frame, (225, colour, 0), ((SIZE_OF_BLOCK*j), (SIZE_OF_BLOCK*i),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
     

@@ -23,8 +23,7 @@ class PathfindingAlgorithm:
         # self.startPath(self.Map.start)
 
         print("Done")
-               
-        # self.Map.quitMap()
+
 
 class AStarAlgorithm(PathfindingAlgorithm):
     
@@ -57,16 +56,6 @@ class AStarAlgorithm(PathfindingAlgorithm):
             
             self.survey(select_node)
             self.Map.setChecked(select_node)
-
-            
-            # while True:
-            #     proceed = pg.event.wait()
-            #     if proceed.type == KEYDOWN and proceed.key == K_SPACE:
-            #         break
-            #     if proceed.type == QUIT:
-            #         self.Map.quitMap()
-            #         return
-                    
             
         return True
     
@@ -125,3 +114,20 @@ class AStarAlgorithm(PathfindingAlgorithm):
                 
         self.Map.setBest(best_node)
         return [best_node] + self.drawShortest(best_node)
+    
+
+
+class TemporalAStarAlgorithm(AStarAlgorithm):
+    def __init__(self, node_map: NodeMap) -> None:
+        super().__init__(node_map)
+    
+    def evaluateNode(self, origin_node: Node, dest_node: Node) -> None:
+        g_score = origin_node.getGScore() + 1.0
+        h_score = sqrt((dest_node.x_cord - self.end.x_cord)**2 + (dest_node.y_cord - self.end.y_cord)**2)
+        f_score = g_score + h_score
+        
+        if f_score < dest_node.FScore:
+            dest_node.setGScore(g_score)
+            dest_node.setHScore(h_score)
+            dest_node.calcFScore()
+        # return super().evaluateNode(origin_node, dest_node)

@@ -1,5 +1,5 @@
-from Astar import AStarAlgorithm
-from NodeMap import NodeMap
+from Astar import AStarAlgorithm, TemporalAStarAlgorithm
+from NodeMap import NodeMap, TemporalNodeMap
 import time
 import pygame as pg
 from pygame.locals import QUIT
@@ -11,19 +11,17 @@ class RouteDemo():
         node_map = NodeMap(30, 24)
         p = AStarAlgorithm(node_map)
         shortest_path = p.startPath(node_map.start)
-        print(shortest_path)
-        sample_node = shortest_path[-1]
-        sample_node.colour = (50,50,50)
-        node_map.drawNodeOnMap(sample_node)
-        pg.display.update()
+
+        
+        # pg.display.update()
+        for node in shortest_path[::-1]:
+            node_map.updateMapObjects()
+            node_map.setBest(node)
+            pg.display.update()
+            time.sleep(0.2)
+
         node_map.waitOnQuit()
-        # while True:
-        #     node_map.updateMapObjects()
-        #     shortest_path = p.startPath(shortest_path[0])
-        #     time.sleep(0.5)
-            # if pg.event.get(pg.QUIT):
-            #     node_map.quitMap()
-            #     break
+
 
 
 class RouteDemoDynamic():
@@ -59,6 +57,20 @@ class RouteDemoDynamic():
         node_map.waitOnQuit()
 
 
+class RouteDemoTemporal:
+    def __init__(self) -> None:
+        print("Starting Temporal")
+        node_map = TemporalNodeMap(30, 24)
+        node_map.forcastStorm()
+
+
+        p = TemporalAStarAlgorithm(node_map)
+        shortest_path = p.startPath(node_map.start)
+
+        pass
+
+
 if __name__ == '__main__':
     # RouteDemo()
-    RouteDemoDynamic()
+    # RouteDemoDynamic()
+    RouteDemoTemporal()

@@ -121,3 +121,41 @@ class Node:
             self.FScore = float('inf')
 
         
+class TemporalNode(Node):
+    def __init__(self) -> None:
+        super().__init__()
+        self.danger_scores = []
+
+    def getDangerScore(self, period: int) -> float:
+        if period >= len(self.danger_scores):
+            return 0
+        
+        return self.danger_scores[period]
+    
+
+
+    def appendDangerScore(self) -> None:
+        self.danger_scores.append(self.danger_score)
+
+    def calcFScore(self) -> None:
+        f_score = (self.GScore + self.HScore)
+        
+        # if period == float('inf'):
+        #     return float('inf')
+        
+        print(self.GScore)
+        danger_score = self.getDangerScore(int(self.GScore))
+
+        if danger_score < 1:
+            f_score = f_score / (1-danger_score)
+        else:
+            f_score = float('inf')
+
+        self.FScore = round(f_score, 2)
+
+    def getFScore(self) -> float:
+        # if period == float('inf'):
+        #     return self.FScore
+        
+        self.calcFScore()
+        return self.FScore
