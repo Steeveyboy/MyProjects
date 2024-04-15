@@ -67,6 +67,27 @@ class RouteDemoTemporal:
         p = TemporalAStarAlgorithm(node_map)
         shortest_path = p.startPath(node_map.start)
 
+        time.sleep(1)
+
+        storm_x, storm_y = node_map.storm.stormStart
+        node_map.storm.cleanUPStorm(node_map.mat, node_map)
+
+        node_map.storm.x = storm_x
+        node_map.storm.y = storm_y
+
+        for node in shortest_path[::-1]:
+            node_map.updateMapObjects()
+            node_map.setBest(node)
+            # pg.display.update()
+            time.sleep(0.25)
+
+        for node in shortest_path[::-1]:
+            node_map.setBest(node)
+            # pg.display.update()
+            time.sleep(0.15)
+
+
+        node_map.waitOnQuit()
         pass
 
 
