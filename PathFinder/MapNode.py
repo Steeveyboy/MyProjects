@@ -28,7 +28,6 @@ SIZE_OF_BLOCK = 32
 class Node:
     def __init__(self):
         self.value = None
-        self.cord = [None, None]
         self.colour = None
         self.FScore = float('inf')
         self.visited = False
@@ -61,12 +60,7 @@ class Node:
         return self.value
 
     def getPos(self):
-        x = self.cord[0]//SIZE_OF_BLOCK
-        y = self.cord[1]//SIZE_OF_BLOCK
-        return((x,y))
-    
-    def setCord(self, cord):
-        self.cord = cord
+        return((self.x_cord,self.y_cord))
 
     def calcFScore(self):
         f_score = (self.GScore + self.HScore)
@@ -107,7 +101,7 @@ class Node:
         return(self.visited)
     
     def __hash__(self):
-        return hash(str(self.cord))
+        return hash(str([self.x_cord, self.y_cord]))
     
     def setHazardPoint(self, safety_score):
         hazard_colour = (225, ((safety_score) * 230), 0)
@@ -128,22 +122,14 @@ class TemporalNode(Node):
 
     def getDangerScore(self, period: int) -> float:
         if period >= len(self.danger_scores):
-            return 0
-        
+            return 0    
         return self.danger_scores[period]
     
-
-
     def appendDangerScore(self) -> None:
         self.danger_scores.append(self.danger_score)
 
     def calcFScore(self) -> None:
         f_score = (self.GScore + self.HScore)
-        
-        # if period == float('inf'):
-        #     return float('inf')
-        
-        print(self.GScore)
         danger_score = self.getDangerScore(int(self.GScore))
 
         if danger_score < 1:
@@ -153,9 +139,6 @@ class TemporalNode(Node):
 
         self.FScore = round(f_score, 2)
 
-    def getFScore(self) -> float:
-        # if period == float('inf'):
-        #     return self.FScore
-        
+    def getFScore(self) -> float:        
         self.calcFScore()
         return self.FScore

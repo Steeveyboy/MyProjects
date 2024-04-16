@@ -1,6 +1,6 @@
 #this is a try at pygame
 import pygame as pg
-from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL, K_l, MOUSEMOTION
+from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL, K_l, MOUSEBUTTONDOWN
 import time
 from storm import OceanStorm
 # from NewAstar import PathfindingAlgorithm
@@ -75,6 +75,9 @@ class NodeMap:
 
                     if pg.key.get_pressed()[K_s]:
                         self.storm.setStormEnd(pos)
+                        x, y = pos
+                        
+                        self.drawCircle(self.mat[x][y])
 
                     else:
                         self.SetEnd(pos)
@@ -85,11 +88,6 @@ class NodeMap:
                     running = False
                     break
 
-                # if pg.key.get_pressed()[K_l]:
-                #     print("Next Turn for storm")
-                #     # self.storm.moveStorm(self.mat, self)
-                #     # pg.display.update()
-                # print(event)
 
     def waitOnQuit(self):
         print("Waiting for user Exit")
@@ -122,7 +120,6 @@ class NodeMap:
                 node = Node.Node()
                 node.setValue("Open")
                 node.setPos(c, r)
-                node.setCord([SIZE_OF_BLOCK*c, SIZE_OF_BLOCK*r])
                 x.append(node)
                 self.drawNodeOnMap(node, width=0)
             self.mat.append(x)
@@ -143,12 +140,22 @@ class NodeMap:
 
         pg.display.update()
 
+    def drawCircle(self, node: Node, width: int=0):
+        pg.draw.ellipse(
+            self.Frame,
+            (240,60,30),
+            (SIZE_OF_BLOCK*node.x_cord + 2, 
+             SIZE_OF_BLOCK*node.y_cord + 2, 
+             SIZE_OF_BLOCK-4, 
+             SIZE_OF_BLOCK-4)
+        )
+        pg.display.update()
     
     def drawNodeOnMap(self, node: Node, width: int = 0):
         pg.draw.rect(
             self.Frame,
             node.colour, 
-            ((SIZE_OF_BLOCK*node.x_cord), SIZE_OF_BLOCK*node.y_cord, SIZE_OF_BLOCK, SIZE_OF_BLOCK),
+            (SIZE_OF_BLOCK*node.x_cord, SIZE_OF_BLOCK*node.y_cord, SIZE_OF_BLOCK, SIZE_OF_BLOCK),
             width
             )
         pg.draw.rect(
@@ -209,21 +216,26 @@ class NodeMap:
         
         node.setValue("Checked")
         node.setVisited()
-        pg.draw.rect(self.Frame, node.colour, ((SIZE_OF_BLOCK*node.x_cord),(SIZE_OF_BLOCK*node.y_cord),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+        self.drawNodeOnMap(node)
+        # pg.draw.rect(self.Frame, node.colour, ((SIZE_OF_BLOCK*node.x_cord),(SIZE_OF_BLOCK*node.y_cord),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
         if self.update_each_frame:
             pg.display.update()
 
     def SetEnd(self, pos):
         x, y = pos
-        if self.mat[x][y].value != "End" and self.end == None:
-            self.mat[x][y].setValue("End")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-            self.end = self.mat[x][y]
+        node = self.mat[x][y]
+        if node.value != "End" and self.end == None:
+            node.setValue("End")
+            self.drawNodeOnMap(node)
+            # pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+            self.end = node
 
-        elif self.mat[x][y].value == "End":
-            self.mat[x][y].setValue("Open")
-            pg.draw.rect(self.Frame, self.mat[x][y].colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
-            pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
+        elif node.value == "End":
+            node.setValue("Open")
+            self.drawNodeOnMap(node)
+            
+            # pg.draw.rect(self.Frame, node.colour, ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK))
+            # pg.draw.rect(self.Frame, (0,0,0), ((SIZE_OF_BLOCK*x), (SIZE_OF_BLOCK*y),SIZE_OF_BLOCK,SIZE_OF_BLOCK), 1)
             self.end = None
         
         pg.display.update()
@@ -299,25 +311,23 @@ class NodeMap:
         
 
     def getPos(self, pos):
-        """Coordinates to position on Map"""
+        """Pixel location to position in node matrix"""
         x, y = pos
-        
         xVal = x // SIZE_OF_BLOCK
         yVal = y // SIZE_OF_BLOCK
-
-        pos = (xVal, yVal)
         
-        return(pos)
-
-
-    def getMat(self):
-        return(self.mat)
+        return(xVal, yVal)
+    
+    def waitOnEvent(self, event_type=MOUSEBUTTONDOWN):
+        while True:
+            ev = pg.event.wait()
+            if ev.type == event_type:
+                return
 
 
 class TemporalNodeMap(NodeMap):
     def __init__(self, cols, rows) -> None:
         super().__init__(cols, rows)
-        
 
     def setupBaseMap(self, cols, rows):
         """Draw border along map edge, and open grid nodes."""
@@ -329,7 +339,6 @@ class TemporalNodeMap(NodeMap):
                 node = Node.TemporalNode()
                 node.setValue("Open")
                 node.setPos(c, r)
-                node.setCord([SIZE_OF_BLOCK*c, SIZE_OF_BLOCK*r])
                 x.append(node)
                 self.drawNodeOnMap(node, width=0)
             self.mat.append(x)
@@ -363,5 +372,5 @@ class TemporalNodeMap(NodeMap):
                 self.updateAllPointsDanger()
                 pg.display.update()
                 time.sleep(0.1)
-        # print(self.mat[10][7].danger_scores)
         pass
+    

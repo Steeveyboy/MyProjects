@@ -48,7 +48,6 @@ class OceanStorm:
         return ((place)/self.radius) * 230
     
     def cleanUPStorm(self, mat, node_map):
-        print("cleaning up storm")
         for curr_x, curr_y in self.currentStormPoints:
             mat[curr_x][curr_y].danger_score = 0
             mat[curr_x][curr_y].setValue(mat[curr_x][curr_y].value)

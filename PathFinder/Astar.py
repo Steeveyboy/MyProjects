@@ -1,6 +1,4 @@
 import NodeMap as NodeMap
-import pygame as pg
-from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL
 from MapNode import Node
 from sortedcontainers import SortedSet
 from typing import List
@@ -10,7 +8,6 @@ import time
 
 
 class PathfindingAlgorithm:
-    
     @abstractmethod
     def startPath(self, initial):
         pass
@@ -18,12 +15,6 @@ class PathfindingAlgorithm:
     def __init__(self, node_map: NodeMap):
         self.Map = node_map
         self.end = self.Map.end
-        # self.Map = NodeMap.NodeMap(rows, cols)
-
-        # self.startPath(self.Map.start)
-
-        print("Done")
-
 
 class AStarAlgorithm(PathfindingAlgorithm):
     
@@ -35,20 +26,16 @@ class AStarAlgorithm(PathfindingAlgorithm):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
 
     def startPath(self, initial):
-        print("Starting Path")
+        # print("Starting Path")
         self.flushSet()
         self.openSet.add(initial)
-        # print(initial)
-        # print(self.openSet)
-        # self.survey(initial)
         running = True
         while running:
             select_node = self.openSet.pop(0)
             
             if select_node.value == "End":  
                 shortest_path = self.drawShortest(select_node)
-                print("Shortest has been drawn")
-                # self.Map.displayAllScores()
+                # print("Shortest has been drawn")
                 if shortest_path:
                     return shortest_path
                 else:
@@ -56,12 +43,9 @@ class AStarAlgorithm(PathfindingAlgorithm):
             
             self.survey(select_node)
             self.Map.setChecked(select_node)
-            
         return True
     
-    def survey(self, select_node: Node) -> None:
-        x, y = select_node.getPos()
-        
+    def survey(self, select_node: Node) -> None:        
         moves = self.getNeighbors(select_node)
 
         for node in moves:
@@ -77,8 +61,7 @@ class AStarAlgorithm(PathfindingAlgorithm):
     def getNeighbors(self, node: Node) -> List[Node]:
         x, y = node.getPos()
         return [self.Map.mat[x][y-1], self.Map.mat[x][y+1], self.Map.mat[x-1][y], self.Map.mat[x+1][y]]
-        # return [self.Map.mat[x][y-1], self.Map.mat[x][y+1], self.Map.mat[x-1][y], self.Map.mat[x+1][y], self.Map.mat[x+1][y+1], self.Map.mat[x-1][y+1], self.Map.mat[x+1][y-1], self.Map.mat[x-1][y-1]]
-        
+  
 
     def evaluateNode(self, origin_node: Node, dest_node: Node) -> None:
         """Set scores for node."""
@@ -90,21 +73,16 @@ class AStarAlgorithm(PathfindingAlgorithm):
             dest_node.setGScore(g_score)
             dest_node.setHScore(h_score)
             dest_node.calcFScore()
-            # dest_node.setFScore(f_score)
-    
-    
-
-    def markNodes(self, node_list: List[Node]):
-        """Mark neighbording ndoes on map."""
-        for node in node_list:
-            self.Map.displayScore(node)
 
     def drawShortest(self, source_node: Node):
         
         nodes = self.getNeighbors(source_node)
         nodes = [n for n in nodes if n.getValue() in {"Checked", "Start"}]
-        
-        best_node = nodes[0]
+        try:
+            best_node = nodes[0]
+        except:
+            print(n.value for n in nodes)
+            return
         for node in nodes:
             if node.value == "Start":
                 return []
@@ -130,4 +108,3 @@ class TemporalAStarAlgorithm(AStarAlgorithm):
             dest_node.setGScore(g_score)
             dest_node.setHScore(h_score)
             dest_node.calcFScore()
-        # return super().evaluateNode(origin_node, dest_node)
