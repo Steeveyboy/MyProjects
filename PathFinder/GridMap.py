@@ -3,6 +3,7 @@ import pygame as pg
 from pygame.locals import K_LSHIFT, QUIT, K_SPACE, K_ESCAPE, KEYDOWN, K_s, K_LCTRL, K_l, MOUSEBUTTONDOWN
 import time
 from storm import OceanStorm
+import os
 # from NewAstar import PathfindingAlgorithm
 
 import MapNode as Node
@@ -103,11 +104,12 @@ class NodeMap:
                 node.resetAnalysis()
                 self.drawNodeOnMap(node)
 
-    def updateMapObjects(self):
+    def updateMapObjects(self, testing=False):
         self.resetNodes()
-        if self.storm:
+        if self.storm and self.storm.stormEnd:
             self.storm.move(self.mat, self)
-        pg.display.update()
+        if not testing:
+            pg.display.update()
 
     
     def setupBaseMap(self, cols, rows):
@@ -182,7 +184,9 @@ class NodeMap:
         self.start.setFScore(0)
         self.start.setGScore(0)
         self.drawNodeOnMap(self.start)
-        pg.display.update()
+        
+        if self.update_each_frame:
+            pg.display.update()
         
         return True
 
@@ -204,9 +208,8 @@ class NodeMap:
         node.setValue("Best")
         self.drawNodeOnMap(node)
 
-        # if self.update_each_frame:
-
-        pg.display.update()
+        if self.update_each_frame:
+            pg.display.update()
  
 
     def setChecked(self, node: Node):
@@ -363,14 +366,70 @@ class TemporalNodeMap(NodeMap):
             for node in row:
                 node.appendDangerScore()
 
-    def forcastStorm(self) -> None:
-        print("starting forcast")
+    def forcastStorm(self, testing=False) -> None:
+
         if self.storm.stormEnd:
             self.updateAllPointsDanger()
             while self.storm.getCurrPos() != self.storm.stormEnd:
                 self.storm.move(self.mat, self)
                 self.updateAllPointsDanger()
-                pg.display.update()
-                time.sleep(0.1)
+                if not testing:
+                    pg.display.update()
+                    time.sleep(0.1)
         pass
     
+class NodeMapTest(NodeMap):
+    def __init__(self, cols, rows, test_start_x, test_start_y, test_end_x, test_end_y):
+        self.num_rows = rows
+        self.num_cols = cols
+        self.start = None
+        self.end = None
+
+        self.storm = None
+        self.update_each_frame = False
+        
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
+        
+        self.root = pg.init()
+
+        Frame = pg.display.set_mode((SIZE_OF_BLOCK*cols,SIZE_OF_BLOCK*rows))
+        
+        self.Frame = Frame
+        pg.display.set_caption("Pathfinding")
+        white = (255,255,255)
+        self.Frame.fill(white)
+        pg.display.update()
+        #Setting up the Frame
+        self.setupBaseMap(cols, rows)
+        self.SetStart((test_start_x, test_start_y))
+        self.SetEnd((test_end_x, test_end_y))
+        self.setStorm((5, 11))
+        self.storm.setStormEnd((24, 11))
+
+class TemporalNodeMapTest(TemporalNodeMap):
+    def __init__(self, cols, rows, test_start_x, test_start_y, test_end_x, test_end_y):
+        self.num_rows = rows
+        self.num_cols = cols
+        self.start = None
+        self.end = None
+
+        self.storm = None
+        self.update_each_frame = False
+        
+        os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
+        
+        self.root = pg.init()
+
+        Frame = pg.display.set_mode((SIZE_OF_BLOCK*cols,SIZE_OF_BLOCK*rows))
+        
+        self.Frame = Frame
+        pg.display.set_caption("Pathfinding")
+        white = (255,255,255)
+        self.Frame.fill(white)
+        pg.display.update()
+        #Setting up the Frame
+        self.setupBaseMap(cols, rows)
+        self.SetStart((test_start_x, test_start_y))
+        self.SetEnd((test_end_x, test_end_y))
+        self.setStorm((5, 12))
+        self.storm.setStormEnd((24, 11))

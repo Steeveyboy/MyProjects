@@ -1,10 +1,10 @@
-import NodeMap as NodeMap
+import GridMap as GridMap
 from MapNode import Node
 from sortedcontainers import SortedSet
 from typing import List
 from math import sqrt
 from abc import abstractmethod
-import time
+
 
 
 class PathfindingAlgorithm:
@@ -12,13 +12,14 @@ class PathfindingAlgorithm:
     def startPath(self, initial):
         pass
     
-    def __init__(self, node_map: NodeMap):
+    def __init__(self, node_map: GridMap):
         self.Map = node_map
         self.end = self.Map.end
+        self.testing = False
 
 class AStarAlgorithm(PathfindingAlgorithm):
     
-    def __init__(self, node_map: NodeMap):
+    def __init__(self, node_map: GridMap):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
         super().__init__(node_map)
 
@@ -26,7 +27,7 @@ class AStarAlgorithm(PathfindingAlgorithm):
         self.openSet = SortedSet({}, key=lambda node: node.FScore)
 
     def startPath(self, initial):
-        # print("Starting Path")
+        
         self.flushSet()
         self.openSet.add(initial)
         running = True
@@ -35,7 +36,6 @@ class AStarAlgorithm(PathfindingAlgorithm):
             
             if select_node.value == "End":  
                 shortest_path = self.drawShortest(select_node)
-                # print("Shortest has been drawn")
                 if shortest_path:
                     return shortest_path
                 else:
@@ -86,9 +86,9 @@ class AStarAlgorithm(PathfindingAlgorithm):
         for node in nodes:
             if node.value == "Start":
                 return []
-            elif (node.getGScore() <= best_node.getGScore()) and node.visited:
-                if(node.getFScore() < best_node.getFScore()):
-                    best_node = node
+            # elif (node.getGScore() <= best_node.getGScore()) and node.visited:
+            if(node.getFScore() < best_node.getFScore()) and node.visited:
+                best_node = node
                 
         self.Map.setBest(best_node)
         return [best_node] + self.drawShortest(best_node)
@@ -96,7 +96,7 @@ class AStarAlgorithm(PathfindingAlgorithm):
 
 
 class TemporalAStarAlgorithm(AStarAlgorithm):
-    def __init__(self, node_map: NodeMap) -> None:
+    def __init__(self, node_map: GridMap) -> None:
         super().__init__(node_map)
     
     def evaluateNode(self, origin_node: Node, dest_node: Node) -> None:
