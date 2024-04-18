@@ -1,8 +1,28 @@
-To run the program execute ui.py to open the UI,
-A basic UI will appear, from there enter the size of the grid you would like (each block is 20 by 20 px), click on an algorithm to select it, then press run,
-From there a grid will be generated, use your left mouse click to select a start point, right mouse to select an endpoint, and the middle mouse to draw barriers.
+This program was written in python 3.10 and utilizes a vitual environment
 
-Note there are still some issues with the implementation of the Depth First Search and A* algorithms.
-However the Dijkstras algorithm will provide you with the fastest path.
-This project was inspired by the pathfinding projects of TechWithTim and Clement Mihailescu.
-Enjoy
+To setup the environment required to run this program follow these steps in the command line
+    1. python3.10 -m venv .venv
+    2. source .venv/source/bin
+    3. pip install -r requirements.txt
+
+To run the program run one of these commands in the command line
+
+    1. python RouteDemo.py --demo basic
+    2. python RouteDemo.py --demo iterative
+    3. python RouteDemo.py --demo temporal
+
+To operate the user interface itself.
+
+Use the mouse left click to set a path starting point
+Use the mouse right click to set a path end point
+
+Hold s and use the left click to set a storm inception point
+Hold s and use the right click to set a storm destination point (optional)
+
+The Press the space bar to begin the visualization
+
+(Optional)
+Hold shift and use the left click to set a static obstacle
+
+NOTE: After the visualization is complete, you have have to click repeatly to view the dynamic tragectory
+
