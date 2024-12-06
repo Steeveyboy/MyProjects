@@ -40,10 +40,6 @@ class OceanStorm:
         # print(f" -> {self.x}, {self.y}")
         self.drawStorm(mat, node_map)
 
-        
-    def setupStorm(self, Map, Frame):
-        pass
-
     def getColor(self, place):
         return ((place)/self.radius) * 230
     

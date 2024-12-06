@@ -45,8 +45,6 @@ class Node:
 
         if self.value not in {"Bloc", "End"}:
             self.setValue("Open")
-
-        
     
     def setValue(self, value):
         self.value = value
@@ -142,3 +140,4 @@ class TemporalNode(Node):
     def getFScore(self) -> float:        
         self.calcFScore()
         return self.FScore
+    
