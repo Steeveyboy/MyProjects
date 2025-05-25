@@ -176,8 +176,9 @@ class PortfolioManager {
 
     recordPortfolioValue() {
         const totalValue = window.gameEngine.getPortfolioValue() + window.gameEngine.gameState.player.cash;
-        const timestamp = Date.now();
-
+        // Use in-game time for timestamp
+        const gameTime = window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime() : null;
+        const timestamp = gameTime ? gameTime.date.getTime() : Date.now();
         this.portfolioHistory.push({
             timestamp,
             value: totalValue,
@@ -191,8 +192,22 @@ class PortfolioManager {
         }
     }
 
+    addPortfolioHistoryEntry(value) {
+        // Use in-game time for history
+        const gameTime = window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime() : null;
+        this.portfolioHistory.push({
+            value,
+            timestamp: gameTime ? gameTime.date.getTime() : Date.now()
+        });
+        if (this.portfolioHistory.length > this.historyLimit) {
+            this.portfolioHistory.shift();
+        }
+    }
+
     getPortfolioHistory(timeframe = '1D') {
-        const now = Date.now();
+        // Use in-game time for cutoff
+        const gameTime = window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime() : null;
+        const now = gameTime ? gameTime.date.getTime() : Date.now();
         let cutoffTime;
 
         switch (timeframe) {

@@ -1,4 +1,7 @@
 // Core Game Engine and Time System
+const ASSET_MANAGER_VERSION = '1.0.0';
+const MILISECONDS_PER_IN_GAME_HOUR = 500; // 1 real second = 1 game hour
+
 class GameEngine {
     constructor() {
         this.gameState = {
@@ -22,15 +25,15 @@ class GameEngine {
             time: {
                 gameStartTime: Date.now(),
                 lastTick: Date.now(),
-                gameSpeed: 1
+                gameSpeed: 2,
+                gameTimeElapsed: 0 // in ms
             },
             ui: {
                 selectedCategory: 'bonds',
                 selectedAsset: null
             }
         };
-
-        this.timeSystem = new TimeSystem();
+        this.timeSystem = new TimeSystem(this);
         this.saveManager = new SaveManager();
         this.marketEvents = this.initializeMarketEvents();
         this.achievements = this.initializeAchievements();
@@ -217,38 +220,71 @@ class GameEngine {
     }
 
     startGameLoop() {
-        setInterval(() => {
-            this.updateMarketData();
-            window.dashboard.updateUI();
-            window.portfolio.renderPortfolio();
-        }, 5000); // Update every 5 seconds
-        
-        // UI update loop (more frequent)
-        setInterval(() => {
-            window.dashboard.updateUI();
-        }, 1000);
+        // Set up the main game tick to advance by one in-game hour per tick, with tick interval = 1s / gameSpeed
+        if (this.mainLoopInterval) clearInterval(this.mainLoopInterval);
+        const IN_GAME_HOUR_MS = 60 * 60 * 1000; // 1 hour in ms
+        const setMainLoop = () => {
+            if (this.mainLoopInterval) clearInterval(this.mainLoopInterval);
+            const interval = 1000 / this.gameState.time.gameSpeed;
+            this.mainLoopInterval = setInterval(() => {
+                // Advance game time by one hour
+                this.gameState.time.gameTimeElapsed += IN_GAME_HOUR_MS;
+                // All time-based logic must be triggered here:
+                this.updateMarketData(); // Market data only updates on main tick
+                window.portfolio.processCouponPayments && window.portfolio.processCouponPayments(); // If implemented
+                window.dashboard.updateUI();
+                window.portfolio.renderPortfolio();
+            }, interval);
+        };
+        setMainLoop();
+        // UI update loop: ONLY update display, never advance time or update market/portfolio
+        if (this.uiUpdateInterval) clearInterval(this.uiUpdateInterval);
+        // this.uiUpdateInterval = setInterval(() => {
+        //     window.dashboard.updateUI();
+        // }, 500);
+        // Wire up game speed control UI
+        const speedControl = document.getElementById('gameSpeedControl');
+        if (speedControl) {
+            speedControl.value = this.gameState.time.gameSpeed;
+            speedControl.onchange = (e) => {
+                this.setGameSpeed(Number(e.target.value));
+                setMainLoop(); // Restart main loop with new interval
+            };
+        }
+    }
+
+    // Call this method whenever you change gameSpeed:
+    setGameSpeed(newSpeed) {
+        this.gameState.time.gameSpeed = newSpeed;
     }
 }
 
+/**
+ * Unified Time System:
+ * - Only the main game tick (mainLoopInterval) advances game time and triggers market/portfolio updates.
+ * - All modules must use TimeSystem.getCurrentGameTime() for in-game time.
+ * - No in-game logic should use Date.now() or real time, except for UI or save timestamps.
+ */
 // Time System - 1 real second = 1 game hour
 class TimeSystem {
-    constructor() {
-        this.gameStartTime = Date.now();
-        this.realStartTime = new Date(); // Current real date (May 24, 2025)
-        this.hoursPerSecond = 1; // 1 real second = 1 game hour
+    constructor(gameEngine) {
+        this.gameEngine = gameEngine;
     }
 
+    /**
+     * Always use this method for in-game time. Never use Date.now() for game logic.
+     */
     getCurrentGameTime() {
-        const realSecondsElapsed = (Date.now() - this.gameStartTime) / 1000;
-        const gameHoursElapsed = Math.floor(realSecondsElapsed * this.hoursPerSecond);
-        
-        const gameDate = new Date(this.realStartTime);
+        // Use accumulated gameTimeElapsed (ms)
+        const elapsedMs = this.gameEngine.gameState.time.gameTimeElapsed;
+        const gameHoursElapsed = Math.floor(elapsedMs / 1000 / 60 / 60); // ms to hours
+        const gameDate = new Date(this.gameEngine.gameState.time.gameStartTime);
         gameDate.setHours(gameDate.getHours() + gameHoursElapsed);
         
         return {
             date: gameDate,
             hoursElapsed: gameHoursElapsed,
-            formattedTime: gameDate.toLocaleDateString() + ' ' + 
+            formattedTime: gameDate.toLocaleDateString() + ' ' +
                           gameDate.getHours().toString().padStart(2, '0') + ':00',
             dayOfYear: Math.floor(gameHoursElapsed / 24),
             yearProgress: (gameHoursElapsed % (365 * 24)) / (365 * 24)
@@ -313,13 +349,15 @@ class SaveManager {
 
     saveGame(gameState) {
         try {
-            // Convert Map to object for serialization
             const saveData = {
                 ...gameState,
                 portfolio: Object.fromEntries(gameState.portfolio),
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                // Persist gameTimeElapsed
+                time: {
+                    ...gameState.time
+                }
             };
-            
             localStorage.setItem(this.saveKey, JSON.stringify(saveData));
             console.log('Game saved successfully');
         } catch (error) {
@@ -331,12 +369,27 @@ class SaveManager {
         try {
             const saveData = localStorage.getItem(this.saveKey);
             if (!saveData) return null;
-            
             const parsed = JSON.parse(saveData);
-            
-            // Convert portfolio back to Map
             parsed.portfolio = new Map(Object.entries(parsed.portfolio));
-            
+            // Rehydrate asset objects
+            if (window.assetManager && parsed.portfolio) {
+                parsed.portfolio.forEach((holding, assetId, map) => {
+                    const asset = window.assetManager.findAsset(assetId);
+                    if (asset) {
+                        const newHolding = {
+                            asset: asset,
+                            quantity: holding.quantity,
+                            averageCost: holding.averageCost,
+                            purchaseDate: holding.purchaseDate
+                        };
+                        map.set(assetId, newHolding);
+                    } else {
+                        map.delete(assetId);
+                    }
+                });
+            }
+            // Ensure gameTimeElapsed is present
+            if (!parsed.time.gameTimeElapsed) parsed.time.gameTimeElapsed = 0;
             return parsed;
         } catch (error) {
             console.error('Failed to load game:', error);

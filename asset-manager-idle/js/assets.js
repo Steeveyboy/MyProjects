@@ -42,10 +42,11 @@ class BaseAsset {
         this.quantity = Math.max(0, quantity);
     }
 
-    getTimeToMaturity(currentDate) {
+    getTimeToMaturity(gameTime = null) {
+        // Use unified time system
+        const currentDate = gameTime ? gameTime.date : (window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime().date : new Date());
         const maturityDate = this.getMaturityDate();
         if (!maturityDate) return null;
-        
         const timeDiff = maturityDate.getTime() - currentDate.getTime();
         return Math.max(0, timeDiff / (1000 * 60 * 60 * 24 * 365)); // Years
     }
@@ -127,8 +128,9 @@ class GovernmentBond extends BaseAsset {
     }
 
     // Get next coupon payment date
-    getNextCouponDate() {
-        const now = new Date();
+    getNextCouponDate(gameTime = null) {
+        // Use unified time system
+        const now = gameTime ? gameTime.date : (window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime().date : new Date());
         const nextCoupon = new Date(this.issueDate);
         
         // Find next 6-month anniversary
@@ -140,13 +142,17 @@ class GovernmentBond extends BaseAsset {
     }
 
     // Calculate accrued interest
-    getAccruedInterest(currentDate = new Date()) {
+    getAccruedInterest(gameTime = null) {
+        // Use unified time system
+        const currentDate = gameTime ? gameTime.date : (window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime().date : new Date());
         const daysSinceLastCoupon = this.getDaysSinceLastCoupon(currentDate);
         const couponPayment = (this.faceValue * this.couponRate) / 2; // Semi-annual
         return (daysSinceLastCoupon / 182.5) * couponPayment; // Approximate 6 months = 182.5 days
     }
 
-    getDaysSinceLastCoupon(currentDate) {
+    getDaysSinceLastCoupon(currentDate = null) {
+        // Use unified time system
+        if (!currentDate) currentDate = (window.gameEngine ? window.gameEngine.timeSystem.getCurrentGameTime().date : new Date());
         const lastCouponDate = new Date(this.issueDate);
         
         // Find the most recent coupon date

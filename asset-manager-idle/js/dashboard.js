@@ -120,9 +120,13 @@ class Dashboard {
         
         // Update market indicators
         this.updateMarketIndicators();
-        
-        // Update game time
+        // Update game date (always update on UI tick)
+        const gameTime = window.gameEngine.timeSystem.getCurrentGameTime();
+        this.updateGameDate(gameTime);
+        // Update game time (legacy, safe to call)
         this.updateGameTime();
+        // Update portfolio analytics section
+        this.renderPortfolioAnalytics();
     }
 
     updateMarketIndicators() {
@@ -174,49 +178,26 @@ class Dashboard {
     }
 
     updateGameTime() {
+        // Hotfix: Only update if element exists (gameTime removed from UI)
+        const gameTimeElement = document.getElementById('gameTime');
+        if (!gameTimeElement) return;
         const gameTime = window.gameEngine.timeSystem.getCurrentGameTime();
-        
-        // Display both elapsed real time and current game date/time
         const realElapsed = Date.now() - window.gameEngine.gameState.time.gameStartTime;
         const minutes = Math.floor(realElapsed / 60000);
         const seconds = Math.floor((realElapsed % 60000) / 1000);
-        
-        document.getElementById('gameTime').textContent = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        // Update game date in header or create new element for it
+        gameTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         this.updateGameDate(gameTime);
     }
-
     updateGameDate(gameTime) {
-        // Find or create game date element
+        // Update the game date in the header in format: Year Month Date Hour
         let gameDateElement = document.getElementById('gameDate');
-        if (!gameDateElement) {
-            // Create game date display next to game time
-            const gameTimeElement = document.getElementById('gameTime');
-            const parentElement = gameTimeElement.parentElement;
-            
-            gameDateElement = document.createElement('div');
-            gameDateElement.id = 'gameDate';
-            gameDateElement.className = 'stat-value';
-            gameDateElement.style.fontSize = '0.9em';
-            gameDateElement.style.color = '#a0aec0';
-            
-            const labelElement = document.createElement('div');
-            labelElement.className = 'stat-label';
-            labelElement.textContent = 'Game Date';
-            
-            parentElement.appendChild(gameDateElement);
-            parentElement.appendChild(labelElement);
-        }
-        
-        const dateStr = gameTime.date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            hour12: false
-        });
-        gameDateElement.textContent = dateStr + ':00';
+        if (!gameDateElement) return;
+        const date = gameTime.date;
+        const year = date.getFullYear();
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const day = date.getDate().toString().padStart(2, '0');
+        const hour = date.getHours().toString().padStart(2, '0');
+        gameDateElement.textContent = `${year} ${month} ${day} ${hour}:00`;
     }
 
     // Chart rendering placeholder (will be enhanced in future phases)
@@ -367,6 +348,42 @@ class Dashboard {
             gameMain.style.gridTemplateColumns = '350px 1fr 350px';
             gameMain.style.gridTemplateRows = 'none';
         }
+    }
+
+    renderPortfolioAnalytics() {
+        // Find or create analytics container
+        let analyticsContainer = document.getElementById('portfolioAnalytics');
+        if (!analyticsContainer) {
+            analyticsContainer = document.createElement('div');
+            analyticsContainer.id = 'portfolioAnalytics';
+            analyticsContainer.style.marginTop = '20px';
+            analyticsContainer.style.background = 'rgba(0,255,136,0.07)';
+            analyticsContainer.style.border = '1px solid #00ff88';
+            analyticsContainer.style.borderRadius = '8px';
+            analyticsContainer.style.padding = '16px';
+            analyticsContainer.style.fontSize = '0.95em';
+            analyticsContainer.style.color = '#e2e8f0';
+            // Insert after portfolio summary
+            const summary = document.querySelector('.portfolio-summary');
+            if (summary && summary.parentNode) {
+                summary.parentNode.insertBefore(analyticsContainer, summary.nextSibling);
+            }
+        }
+        // Get analytics report
+        const report = window.portfolio.generateAnalyticsReport();
+        if (!report) {
+            analyticsContainer.innerHTML = '<em>No analytics available (empty portfolio).</em>';
+            return;
+        }
+        analyticsContainer.innerHTML = `
+            <div style="font-weight:bold; color:#00ff88; margin-bottom:8px;">Portfolio Analytics</div>
+            <div>Sharpe Ratio: <span style="color:#51cf66;">${report.sharpeRatio.toFixed(2)}</span></div>
+            <div>Max Drawdown: <span style="color:#ff6b6b;">${(report.maxDrawdown * 100).toFixed(2)}%</span></div>
+            <div>Value at Risk (VaR 95%): <span style="color:#ffd43b;">$${report.valueAtRisk.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
+            <div>Volatility: <span style="color:#74c0fc;">${(report.volatility * 100).toFixed(2)}%</span></div>
+            <div>Diversification (HHI): <span style="color:#00d4ff;">${(report.diversification.sectorConcentration * 100).toFixed(2)}%</span></div>
+            <div style="font-size:0.9em; color:#a0aec0; margin-top:6px;">Last updated: ${report.lastUpdated}</div>
+        `;
     }
 }
 

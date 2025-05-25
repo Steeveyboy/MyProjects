@@ -15,6 +15,11 @@ To start I think phase 1 was a success, I expecially like the bloomberg asthetic
 - Some Advanced UI Features such as interactive charts for interest rates and economic indicators.
 - Add a new Asset class for Corporate Bonds.
 
+## Phase 2.1
+### Bug Fixes
+- Add the ability to speed up or slow down the game speed. Add ab ubducatir  Remove the game time from the UI, still record it however.
+- Modify the game timesystem and how the games progress is recorded. It currently calculates the ingame time, be taking the different between now and the datetime the game started, then deviding it by the game speed. This will not work becuase the gamespeed will fluctuate.
+
 
 ## Phase 3 Enhancements
 ### Technical Requirements
@@ -22,10 +27,18 @@ To start I think phase 1 was a success, I expecially like the bloomberg asthetic
 
 ### Game Features
 - Advanced UI Features - Interactive charts, portfolio analytics
-- Additional Asset Classes - Stocks, derivatives, commodities
+    - under portfolio overview I would like various tabs, including an overview, and a portfolio analytics tab which will contain general information and graph of total assets over time, which will containe the advanced analytics, and a interest/dividend accrual schedule.
+- Additional Asset Classes
+    - Stock market assets (Level 5 unlock)
+    - Derivative instruments (Level 7 unlock)
+    - Commodity investments (Level 10 unlock)
 - Educational System - Tooltips, tutorials, and help guides
 - Advanced Analytics - Risk metrics, correlation analysis
 - Performance Optimization - For handling larger portfolios
+- Real-time market simulation
+- Achievement progression system
+- Interest Rate Curse Chart
+
 
 ## Possibly Phase 4?
 ### Game Features
