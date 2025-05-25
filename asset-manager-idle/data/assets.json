@@ -1,0 +1,104 @@
+{
+  "governmentBonds": [
+    {
+      "id": "us_10y",
+      "name": "US Treasury 10Y",
+      "type": "government",
+      "faceValue": 1000,
+      "couponRate": 0.0425,
+      "maturityYears": 10,
+      "creditRating": "AAA",
+      "minPurchase": 1000,
+      "callable": false,
+      "liquidity": "high",
+      "description": "10-year US Treasury bond with semi-annual coupon payments"
+    },
+    {
+      "id": "us_5y",
+      "name": "US Treasury 5Y",
+      "type": "government",
+      "faceValue": 1000,
+      "couponRate": 0.039,
+      "maturityYears": 5,
+      "creditRating": "AAA",
+      "minPurchase": 1000,
+      "callable": false,
+      "liquidity": "high",
+      "description": "5-year US Treasury bond with semi-annual coupon payments"
+    },
+    {
+      "id": "us_2y",
+      "name": "US Treasury 2Y",
+      "type": "government",
+      "faceValue": 1000,
+      "couponRate": 0.035,
+      "maturityYears": 2,
+      "creditRating": "AAA",
+      "minPurchase": 1000,
+      "callable": false,
+      "liquidity": "high",
+      "description": "2-year US Treasury bond with semi-annual coupon payments"
+    },
+    {
+      "id": "tips_10y",
+      "name": "TIPS 10Y",
+      "type": "inflation_protected",
+      "faceValue": 1000,
+      "couponRate": 0.015,
+      "maturityYears": 10,
+      "creditRating": "AAA",
+      "minPurchase": 1000,
+      "callable": false,
+      "liquidity": "medium",
+      "inflationProtected": true,
+      "description": "Treasury Inflation-Protected Securities with inflation adjustment"
+    }
+  ],
+  "corporateBonds": [
+    {
+      "id": "corp_aaa_10y",
+      "name": "AAA Corp 10Y",
+      "type": "corporate",
+      "faceValue": 1000,
+      "couponRate": 0.055,
+      "maturityYears": 10,
+      "creditRating": "AAA",
+      "sector": "technology",
+      "issuer": "Tech Corp",
+      "minPurchase": 1000,
+      "callable": true,
+      "liquidity": "medium",
+      "description": "Investment-grade corporate bond from technology sector"
+    },
+    {
+      "id": "corp_bbb_5y",
+      "name": "BBB Corp 5Y",
+      "type": "corporate",
+      "faceValue": 1000,
+      "couponRate": 0.065,
+      "maturityYears": 5,
+      "creditRating": "BBB",
+      "sector": "industrials",
+      "issuer": "Industrial Inc",
+      "minPurchase": 1000,
+      "callable": true,
+      "liquidity": "medium",
+      "description": "Investment-grade corporate bond from industrials sector"
+    },
+    {
+      "id": "corp_bb_3y",
+      "name": "BB Energy 3Y",
+      "type": "corporate",
+      "faceValue": 1000,
+      "couponRate": 0.085,
+      "maturityYears": 3,
+      "creditRating": "BB",
+      "sector": "energy",
+      "issuer": "Energy Co",
+      "minPurchase": 1000,
+      "callable": true,
+      "liquidity": "low",
+      "description": "High-yield corporate bond from energy sector"
+    }
+  ]
+}

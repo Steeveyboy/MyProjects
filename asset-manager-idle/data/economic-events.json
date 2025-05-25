@@ -1,0 +1,124 @@
+{
+  "marketEvents": [
+    {
+      "type": "fed_announcement",
+      "probability": 0.02,
+      "impact": {
+        "treasuryRate": [-0.5, 0.5],
+        "vix": [-5, 15]
+      },
+      "messages": [
+        "Federal Reserve holds rates steady, signals data-dependent approach",
+        "Fed raises rates by 25 basis points citing inflation concerns",
+        "Federal Reserve cuts rates amid economic uncertainty",
+        "Fed Chair emphasizes patience in policy normalization"
+      ]
+    },
+    {
+      "type": "economic_data",
+      "probability": 0.05,
+      "impact": {
+        "inflation": [-0.3, 0.3],
+        "treasuryRate": [-0.2, 0.2]
+      },
+      "messages": [
+        "GDP growth exceeds expectations at 3.2% annualized rate",
+        "Unemployment rate drops to multi-decade low",
+        "Consumer Price Index shows cooling inflation trends",
+        "Manufacturing PMI indicates economic expansion",
+        "Jobs report shows strong labor market momentum"
+      ]
+    },
+    {
+      "type": "market_volatility",
+      "probability": 0.03,
+      "impact": {
+        "vix": [-10, 20],
+        "creditSpread": [-20, 30]
+      },
+      "messages": [
+        "Market volatility spikes on geopolitical tensions",
+        "Risk-off sentiment drives flight to quality assets",
+        "Credit markets show signs of stress amid uncertainty",
+        "Volatility subsides as markets digest recent developments"
+      ]
+    },
+    {
+      "type": "credit_event", 
+      "probability": 0.01,
+      "impact": {
+        "creditSpread": [10, 50],
+        "vix": [2, 8]
+      },
+      "messages": [
+        "Major corporation faces credit rating downgrade",
+        "High-yield bond defaults reach quarterly high",
+        "Credit rating agency revises outlook for energy sector",
+        "Investment-grade bond issuance surges amid low rates"
+      ]
+    },
+    {
+      "type": "seasonal_effect",
+      "probability": 0.08,
+      "impact": {
+        "vix": [-3, 3],
+        "treasuryRate": [-0.1, 0.1]
+      },
+      "messages": [
+        "Year-end portfolio rebalancing affects bond markets",
+        "January effect observed in fixed income markets",
+        "Summer trading volumes decline amid vacation season",
+        "Quarter-end flows impact Treasury auction demand"
+      ]
+    },
+    {
+      "type": "global_event",
+      "probability": 0.015,
+      "impact": {
+        "treasuryRate": [-0.3, 0.1],
+        "vix": [5, 25],
+        "creditSpread": [0, 40]
+      },
+      "messages": [
+        "European Central Bank adjusts monetary policy stance",
+        "Emerging market currency volatility affects risk sentiment",
+        "Trade tensions impact global growth outlook",
+        "Central bank coordination supports market stability"
+      ]
+    }
+  ],
+  "economicCycles": {
+    "expansion": {
+      "duration": 0.6,
+      "effects": {
+        "creditSpread": -0.3,
+        "vix": -0.2,
+        "treasuryRate": 0.1
+      }
+    },
+    "peak": {
+      "duration": 0.1,
+      "effects": {
+        "creditSpread": 0.2,
+        "vix": 0.3,
+        "treasuryRate": 0.2
+      }
+    },
+    "contraction": {
+      "duration": 0.2,
+      "effects": {
+        "creditSpread": 0.8,
+        "vix": 0.6,
+        "treasuryRate": -0.4
+      }
+    },
+    "trough": {
+      "duration": 0.1,
+      "effects": {
+        "creditSpread": 0.5,
+        "vix": 0.4,
+        "treasuryRate": -0.6
+      }
+    }
+  }
+}

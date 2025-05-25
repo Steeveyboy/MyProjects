@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Asset Management - Idle Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0c1427 0%, #1a2332 50%, #2d3748 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+        }
+
+        /* Header / HUD */
+        .game-header {
+            background: linear-gradient(90deg, #1a202c 0%, #2d3748 100%);
+            border-bottom: 2px solid #4a5568;
+            padding: 15px 30px;
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cash { color: #00ff88; }
+        .portfolio-value { color: #00d4ff; }
+        .total-return { color: #ffa500; }
+        .experience { color: #9f7aea; }
+
+        /* Main Game Area */
+        .game-main {
+            display: grid;
+            grid-template-columns: 350px 1fr 350px;
+            height: calc(100vh - 80px);
+            gap: 2px;
+            background: #2d3748;
+        }
+
+        .panel {
+            background: #1a202c;
+            border: 1px solid #4a5568;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, #2d3748, #4a5568);
+            padding: 15px 20px;
+            border-bottom: 1px solid #4a5568;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Asset Trading Panel */
+        .asset-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-tab {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00ff88;
+        }
+
+        .category-tab.active {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .category-tab.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .unlock-level {
+            font-size: 0.8em;
+            color: #a0aec0;
+        }
+
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .asset-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .asset-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00d4ff;
+            transform: translateY(-1px);
+        }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .asset-name {
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .asset-price {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .asset-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.85em;
+            color: #a0aec0;
+        }
+
+        .asset-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .btn-buy {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .btn-buy:hover {
+            background: #00cc6a;
+            transform: scale(1.05);
+        }
+
+        .btn-sell {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .btn-sell:hover {
+            background: #cc3333;
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Portfolio Panel */
+        .portfolio-summary {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .portfolio-metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #a0aec0;
+            text-transform: uppercase;
+        }
+
+        .holdings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .holding-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .holding-info {
+            flex: 1;
+        }
+
+        .holding-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .holding-details {
+            font-size: 0.8em;
+            color: #a0aec0;
+        }
+
+        .holding-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .holding-pnl {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* Market Data Panel */
+        .market-indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .indicator {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .indicator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .indicator-name {
+            font-size: 0.9em;
+            color: #a0aec0;
+        }
+
+        .indicator-value {
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .indicator-change {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .positive { color: #00ff88; }
+        .negative { color: #ff4444; }
+        .neutral { color: #00d4ff; }
+
+        .chart-container {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .news-ticker {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .news-time {
+            color: #a0aec0;
+            font-size: 0.8em;
+            margin-bottom: 4px;
+        }
+
+        /* Achievement Toast */
+        .achievement-toast {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: linear-gradient(45deg, #9f7aea, #667eea);
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .achievement-toast.show {
+            transform: translateX(0);
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .achievement-desc {
+            font-size: 0.9em;
+            color: #e2e8f0;
+        }
+
+        /* Loading and Animation Effects */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4a5568;
+            border-top: 2px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .price-change {
+            transition: all 0.3s ease;
+        }
+
+        .price-flash-green {
+            background-color: rgba(0, 255, 136, 0.3);
+            animation: flash 0.5s ease-out;
+        }
+
+        .price-flash-red {
+            background-color: rgba(255, 68, 68, 0.3);
+            animation: flash 0.5s ease-out;
+        }
+
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .game-main {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .game-header {
+                grid-template-columns: auto 1fr;
+                gap: 15px;
+            }
+            
+            .player-stats {
+                gap: 15px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            z-index: 1000;
+            border: 1px solid #4a5568;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header / HUD -->
+        <div class="game-header">
+            <div class="game-title">📈 Asset Manager Pro</div>
+            <div class="player-stats">
+                <div class="stat-item">
+                    <div class="stat-value cash" id="playerCash">$50,000</div>
+                    <div class="stat-label">Available Cash</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value portfolio-value" id="portfolioValue">$0</div>
+                    <div class="stat-label">Portfolio Value</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value total-return" id="totalReturn">+0.00%</div>
+                    <div class="stat-label">Total Return</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value experience" id="playerLevel">Level 1</div>
+                <div class="stat-label">Experience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="gameTime">00:00</div>
+                <div class="stat-label">Game Time</div>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-main">
+            <!-- Left Panel - Asset Trading -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>🏦 Asset Marketplace</span>
+                    <span class="loading-spinner" id="marketSpinner" style="display: none;"></span>
+                </div>
+                <div class="panel-content">
+                    <div class="asset-categories">
+                        <div class="category-tab active" data-category="bonds">
+                            <span>💰 Government Bonds</span>
+                            <span class="unlock-level">Level 1</span>
+                        </div>
+                        <div class="category-tab locked" data-category="corporate">
+                            <span>🏢 Corporate Bonds</span>
+                            <span class="unlock-level">Level 3</span>
+                        </div>
+                        <div class="category-tab locked" data-category="stocks">
+                            <span>📊 Stocks</span>
+                            <span class="unlock-level">Level 5</span>
+                        </div>
+                        <div class="category-tab locked" data-category="derivatives">
+                            <span>🔄 Derivatives</span>
+                            <span class="unlock-level">Level 8</span>
+                        </div>
+                        <div class="category-tab locked" data-category="commodities">
+                            <span>🥇 Commodities</span>
+                            <span class="unlock-level">Level 10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-list" id="assetList">
+                        <!-- Assets will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel - Portfolio & Analytics -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>📋 Portfolio Overview</span>
+                    <span id="portfolioCount">0 Holdings</span>
+                </div>
+                <div class="panel-content">
+                    <div class="portfolio-summary">
+                        <div class="portfolio-grid">
+                            <div class="portfolio-metric">
+                                <div class="metric-value cash" id="totalValue">$50,000</div>
+                                <div class="metric-label">Total Assets</div>
+                            </div>
+                            <div class="portfolio-metric">
+                                <div class="metric-value neutral" id="dayPnL">$0</div>
+                                <div class="metric-label">Today's P&L</div>
+                            </div>
+                            <div class="portfolio-metric">
+                                <div class="metric-value neutral" id="avgYield">0.00%</div>
+                                <div class="metric-label">Avg Yield</div>
+                            </div>
+                            <div class="portfolio-metric">
+                                <div class="metric-value neutral" id="portfolioDuration">0.0</div>
+                                <div class="metric-label">Duration</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holdings-list" id="holdingsList">
+                        <div style="text-align: center; color: #a0aec0; padding: 40px 20px; font-style: italic;">
+                            Your portfolio is empty. Start by buying some government bonds!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Market Data & News -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>📈 Market Data</span>
+                    <span class="pulse" style="color: #00ff88;">● LIVE</span>
+                </div>
+                <div class="panel-content">
+                    <div class="market-indicators">
+                        <div class="indicator">
+                            <div class="indicator-header">
+                                <span class="indicator-name">10Y Treasury Rate</span>
+                                <div>
+                                    <span class="indicator-value" id="treasuryRate">4.25%</span>
+                                    <span class="indicator-change positive" id="treasuryChange">+0.05%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="indicator">
+                            <div class="indicator-header">
+                                <span class="indicator-name">Credit Spread</span>
+                                <div>
+                                    <span class="indicator-value" id="creditSpread">125bp</span>
+                                    <span class="indicator-change negative" id="spreadChange">-2bp</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="indicator">
+                            <div class="indicator-header">
+                                <span class="indicator-name">VIX Index</span>
+                                <div>
+                                    <span class="indicator-value" id="vixIndex">18.5</span>
+                                    <span class="indicator-change positive" id="vixChange">+1.2</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="indicator">
+                            <div class="indicator-header">
+                                <span class="indicator-name">Inflation Rate</span>
+                                <div>
+                                    <span class="indicator-value" id="inflationRate">2.8%</span>
+                                    <span class="indicator-change neutral" id="inflationChange">0.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div>📊 Interest Rate Curve Chart</div>
+                        <div style="font-size: 0.8em; color: #666;">(Coming in Phase 2)</div>
+                    </div>
+
+                    <div class="panel-header" style="margin: 0; padding: 10px 0; background: none; border: none;">
+                        <span>📰 Market News</span>
+                    </div>
+                    
+                    <div class="news-ticker" id="newsTicker">
+                        <div class="news-item">
+                            <div class="news-time">09:30 AM</div>
+                            <div>Federal Reserve holds rates steady at current levels, signals cautious approach to future policy changes.</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-time">08:45 AM</div>
+                            <div>Treasury auction shows strong demand for 10-year bonds, yields decline slightly.</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-time">08:15 AM</div>
+                            <div>Economic growth data beats expectations, inflation remains within Fed target range.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Toast -->
+    <div class="achievement-toast" id="achievementToast">
+        <div class="achievement-title" id="achievementTitle">Achievement Unlocked!</div>
+        <div class="achievement-desc" id="achievementDesc">First bond purchase completed</div>
+    </div>
+
+    <script>
+        // Financial Asset Management Idle Game
+        class AssetManagerGame {
+            constructor() {
+                this.gameState = {
+                    player: {
+                        cash: 50000,
+                        experience: 0,
+                        level: 1,
+                        totalInvested: 0,
+                        totalReturn: 0,
+                        achievements: []
+                    },
+                    portfolio: new Map(),
+                    market: {
+                        treasuryRate: 4.25,
+                        creditSpread: 125,
+                        vix: 18.5,
+                        inflation: 2.8,
+                        economicCycle: 'stable',
+                        lastUpdate: Date.now()
+                    },
+                    time: {
+                        gameStartTime: Date.now(),
+                        lastTick: Date.now(),
+                        gameSpeed: 1
+                    },
+                    ui: {
+                        selectedCategory: 'bonds',
+                        selectedAsset: null
+                    }
+                };
+
+                this.assetDatabase = this.initializeAssets();
+                this.marketEvents = this.initializeMarketEvents();
+                this.achievements = this.initializeAchievements();
+                
+                this.initializeEventListeners();
+                this.startGameLoop();
+                this.updateUI();
+            }
+
+            initializeAssets() {
+                return {
+                    bonds: [
+                        {
+                            id: 'us_10y',
+                            name: 'US Treasury 10Y',
+                            type: 'government',
+                            faceValue: 1000,
+                            couponRate: 0.0425,
+                            maturity: 10,
+                            creditRating: 'AAA',
+                            minPurchase: 1000,
+                            callable: false,
+                            liquidity: 'high'
+                        },
+                        {
+                            id: 'us_5y',
+                            name: 'US Treasury 5Y',
+                            type: 'government',
+                            faceValue: 1000,
+                            couponRate: 0.039,
+                            maturity: 5,
+                            creditRating: 'AAA',
+                            minPurchase: 1000,
+                            callable: false,
+                            liquidity: 'high'
+                        },
+                        {
+                            id: 'us_2y',
+                            name: 'US Treasury 2Y',
+                            type: 'government',
+                            faceValue: 1000,
+                            couponRate: 0.035,
+                            maturity: 2,
+                            creditRating: 'AAA',
+                            minPurchase: 1000,
+                            callable: false,
+                            liquidity: 'high'
+                        },
+                        {
+                            id: 'tips_10y',
+                            name: 'TIPS 10Y',
+                            type: 'inflation_protected',
+                            faceValue: 1000,
+                            couponRate: 0.015,
+                            maturity: 10,
+                            creditRating: 'AAA',
+                            minPurchase: 1000,
+                            callable: false,
+                            liquidity: 'medium',
+                            inflationProtected: true
+                        }
+                    ],
+                    corporate: [
+                        {
+                            id: 'corp_aaa_10y',
+                            name: 'AAA Corp 10Y',
+                            type: 'corporate',
+                            faceValue: 1000,
+                            couponRate: 0.055,
+                            maturity: 10,
+                            creditRating: 'AAA',
+                            minPurchase: 1000,
+                            callable: true,
+                            liquidity: 'medium'
+                        }
+                    ]
+                };
+            }
+
+            initializeMarketEvents() {
+                return [
+                    {
+                        type: 'fed_announcement',
+                        probability: 0.02,
+                        impact: { treasuryRate: [-0.5, 0.5], vix: [-5, 15] },
+                        message: 'Federal Reserve announces policy changes'
+                    },
+                    {
+                        type: 'economic_data',
+                        probability: 0.05,
+                        impact: { inflation: [-0.3, 0.3], treasuryRate: [-0.2, 0.2] },
+                        message: 'New economic data released'
+                    },
+                    {
+                        type: 'market_volatility',
+                        probability: 0.03,
+                        impact: { vix: [-10, 20], creditSpread: [-20, 30] },
+                        message: 'Market volatility spike detected'
+                    }
+                ];
+            }
+
+            initializeAchievements() {
+                return [
+                    {
+                        id: 'first_purchase',
+                        name: 'First Investment',
+                        description: 'Make your first bond purchase',
+                        condition: () => this.gameState.portfolio.size > 0,
+                        reward: { experience: 100 }
+                    },
+                    {
+                        id: 'diversified_portfolio',
+                        name: 'Diversified Investor',
+                        description: 'Own 5 different bonds',
+                        condition: () => this.gameState.portfolio.size >= 5,
+                        reward: { experience: 250 }
+                    },
+                    {
+                        id: 'hundred_k',
+                        name: 'Portfolio Milestone',
+                        description: 'Reach $100,000 total assets',
+                        condition: () => this.getTotalAssets() >= 100000,
+                        reward: { experience: 500 }
+                    }
+                ];
+            }
+
+            initializeEventListeners() {
+                // Category tabs
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        const category = e.currentTarget.dataset.category;
+                        this.selectCategory(category);
+                    });
+                });
+
+                // Asset interactions will be added dynamically
+            }
+
+            selectCategory(category) {
+                // Check if category is unlocked
+                const requiredLevel = this.getCategoryRequiredLevel(category);
+                if (this.gameState.player.level < requiredLevel) {
+                    this.showToast('Locked', `Reach Level ${requiredLevel} to unlock ${category}`);
+                    return;
+                }
+
+                this.gameState.ui.selectedCategory = category;
+                
+                // Update UI
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.dataset.category === category) {
+                        tab.classList.add('active');
+                    }
+                });
+
+                this.renderAssetList();
+            }
+
+            getCategoryRequiredLevel(category) {
+                const requirements = {
+                    bonds: 1,
+                    corporate: 3,
+                    stocks: 5,
+                    derivatives: 8,
+                    commodities: 10
+                };
+                return requirements[category] || 1;
+            }
+
+            renderAssetList() {
+                const assetListContainer = document.getElementById('assetList');
+                const category = this.gameState.ui.selectedCategory;
+                const assets = this.assetDatabase[category] || [];
+
+                assetListContainer.innerHTML = '';
+
+                assets.forEach(asset => {
+                    const price = this.calculateAssetPrice(asset);
+                    const yield_ = this.calculateYield(asset, price);
+                    const duration = this.calculateDuration(asset, yield_);
+
+                    const assetElement = document.createElement('div');
+                    assetElement.className = 'asset-item';
+                    assetElement.innerHTML = `
+                        <div class="asset-header">
+                            <div class="asset-name">${asset.name}</div>
+                            <div class="asset-price ${price > asset.faceValue ? 'positive' : price < asset.faceValue ? 'negative' : 'neutral'}">
+                                $${price.toFixed(2)}
+                            </div>
+                        </div>
+                        <div class="asset-details">
+                            <div>Yield: ${(yield_ * 100).toFixed(2)}%</div>
+                            <div>Duration: ${duration.toFixed(1)}</div>
+                            <div>Rating: ${asset.creditRating}</div>
+                            <div>Maturity: ${asset.maturity}Y</div>
+                        </div>
+                        <div class="asset-actions">
+                            <button class="btn btn-buy" onclick="game.buyAsset('${asset.id}')">
+                                Buy ($${asset.minPurchase.toLocaleString()})
+                            </button>
+                            <button class="btn btn-sell" onclick="game.sellAsset('${asset.id}')" 
+                                    ${!this.gameState.portfolio.has(asset.id) ? 'disabled' : ''}>
+                                Sell
+                            </button>
+                        </div>
+                    `;
+
+                    assetListContainer.appendChild(assetElement);
+                });
+            }
+
+            calculateAssetPrice(asset) {
+                const baseYield = this.calculateRequiredYield(asset);
+                return this.calculateBondPrice(asset, baseYield);
+            }
+
+            calculateRequiredYield(asset) {
+                let requiredYield = this.gameState.market.treasuryRate / 100;
+                
+                // Credit spread adjustment
+                const creditSpreads = {
+                    'AAA': 0, 'AA': 0.002, 'A': 0.005, 'BBB': 0.01,
+                    'BB': 0.03, 'B': 0.06, 'CCC': 0.12
+                };
+                requiredYield += creditSpreads[asset.creditRating] || 0.01;
+                
+                // Add base credit spread
+                requiredYield += this.gameState.market.creditSpread / 10000;
+                
+                // VIX impact
+                const vixPremium = Math.max(0, (this.gameState.market.vix - 15) * 0.001);
+                requiredYield += vixPremium;
+                
+                // Callable bond adjustment
+                if (asset.callable) {
+                    requiredYield += 0.003;
+                }
+                
+                // Liquidity adjustment
+                const liquidityPremiums = { high: 0, medium: 0.001, low: 0.002 };
+                requiredYield += liquidityPremiums[asset.liquidity] || 0.001;
+
+                return requiredYield;
+            }
+
+            calculateBondPrice(asset, ytm) {
+                const periodsPerYear = 2; // Semi-annual
+                const totalPeriods = asset.maturity * periodsPerYear;
+                const periodRate = ytm / periodsPerYear;
+                const couponPayment = (asset.faceValue * asset.couponRate) / periodsPerYear;
+
+                let price = 0;
+                
+                // Present value of coupon payments
+                for (let i = 1; i <= totalPeriods; i++) {
+                    price += couponPayment / Math.pow(1 + periodRate, i);
+                }
+                
+                // Present value of principal
+                price += asset.faceValue / Math.pow(1 + periodRate, totalPeriods);
+                
+                return price;
+            }
+
+            calculateYield(asset, price) {
+                // Simplified current yield calculation
+                const annualCoupon = asset.faceValue * asset.couponRate;
+                return annualCoupon / price;
+            }
+
+            calculateDuration(asset, yield_) {
+                // Simplified modified duration
+                const macaulayDuration = asset.maturity * 0.85; // Approximation
+                return macaulayDuration / (1 + yield_ / 2);
+            }
+
+            buyAsset(assetId) {
+                const asset = this.findAsset(assetId);
+                if (!asset) return;
+
+                const price = this.calculateAssetPrice(asset);
+                const totalCost = Math.ceil(price); // Round up to nearest dollar
+
+                if (this.gameState.player.cash < totalCost) {
+                    this.showToast('Insufficient Funds', `Need $${totalCost.toLocaleString()}`);
+                    return;
+                }
+
+                // Execute purchase
+                this.gameState.player.cash -= totalCost;
+                this.gameState.player.totalInvested += totalCost;
+
+                // Add to portfolio
+                if (this.gameState.portfolio.has(assetId)) {
+                    const holding = this.gameState.portfolio.get(assetId);
+                    holding.quantity += 1;
+                    holding.averageCost = (holding.averageCost * (holding.quantity - 1) + totalCost) / holding.quantity;
+                } else {
+                    this.gameState.portfolio.set(assetId, {
+                        asset: asset,
+                        quantity: 1,
+                        averageCost: totalCost,
+                        purchaseDate: Date.now()
+                    });
+                }
+
+                // Add experience
+                this.addExperience(10);
+
+                // Check achievements
+                this.checkAchievements();
+
+                // Update UI
+                this.updateUI();
+                this.renderAssetList();
+                this.renderPortfolio();
+
+                // Show success message
+                this.showToast('Purchase Successful', `Bought ${asset.name} for $${totalCost.toLocaleString()}`);
+            }
+
+            sellAsset(assetId) {
+                const holding = this.gameState.portfolio.get(assetId);
+                if (!holding) return;
+
+                const currentPrice = this.calculateAssetPrice(holding.asset);
+                const saleProceeds = Math.floor(currentPrice); // Round down
+
+                // Execute sale
+                this.gameState.player.cash += saleProceeds;
+                
+                const pnl = saleProceeds - holding.averageCost;
+                this.gameState.player.totalReturn += pnl;
+
+                // Remove from portfolio
+                if (holding.quantity > 1) {
+                    holding.quantity -= 1;
+                } else {
+                    this.gameState.portfolio.delete(assetId);
+                }
+
+                // Add experience
+                this.addExperience(5);
+
+                // Update UI
+                this.updateUI();
+                this.renderAssetList();
+                this.renderPortfolio();
+
+                // Show result message
+                const pnlText = pnl >= 0 ? `+$${pnl.toLocaleString()}` : `-$${Math.abs(pnl).toLocaleString()}`;
+                this.showToast('Sale Completed', `Sold for $${saleProceeds.toLocaleString()} (${pnlText})`);
+            }
+
+            findAsset(assetId) {
+                for (const category in this.assetDatabase) {
+                    const asset = this.assetDatabase[category].find(a => a.id === assetId);
+                    if (asset) return asset;
+                }
+                return null;
+            }
+
+            addExperience(amount) {
+                this.gameState.player.experience += amount;
+                const newLevel = Math.floor(this.gameState.player.experience / 1000) + 1;
+                
+                if (newLevel > this.gameState.player.level) {
+                    this.gameState.player.level = newLevel;
+                    this.showAchievement('Level Up!', `Reached Level ${newLevel}`);
+                    this.unlockNewAssets();
+                }
+            }
+
+            unlockNewAssets() {
+                // Update category tabs based on level
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    const category = tab.dataset.category;
+                    const requiredLevel = this.getCategoryRequiredLevel(category);
+                    
+                    if (this.gameState.player.level >= requiredLevel) {
+                        tab.classList.remove('locked');
+                    }
+                });
+            }
+
+            checkAchievements() {
+                this.achievements.forEach(achievement => {
+                    if (!this.gameState.player.achievements.includes(achievement.id) && 
+                        achievement.condition()) {
+                        this.gameState.player.achievements.push(achievement.id);
+                        this.addExperience(achievement.reward.experience);
+                        this.showAchievement(achievement.name, achievement.description);
+                    }
+                });
+            }
+
+            showAchievement(title, description) {
+                const toast = document.getElementById('achievementToast');
+                document.getElementById('achievementTitle').textContent = title;
+                document.getElementById('achievementDesc').textContent = description;
+                
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            showToast(title, message) {
+                // Simple toast implementation
+                console.log(`${title}: ${message}`);
+            }
+
+            getTotalAssets() {
+                let total = this.gameState.player.cash;
+                
+                this.gameState.portfolio.forEach(holding => {
+                    const currentPrice = this.calculateAssetPrice(holding.asset);
+                    total += currentPrice * holding.quantity;
+                });
+                
+                return total;
+            }
+
+            getPortfolioValue() {
+                let value = 0;
+                
+                this.gameState.portfolio.forEach(holding => {
+                    const currentPrice = this.calculateAssetPrice(holding.asset);
+                    value += currentPrice * holding.quantity;
+                });
+                
+                return value;
+            }
+
+            updateMarketData() {
+                // Simulate market changes
+                const volatility = 0.002; // 0.2% daily volatility
+                
+                // Update treasury rate
+                const rateChange = (Math.random() - 0.5) * volatility * 2;
+                this.gameState.market.treasuryRate += rateChange;
+                this.gameState.market.treasuryRate = Math.max(0.1, Math.min(10, this.gameState.market.treasuryRate));
+                
+                // Update VIX
+                const vixChange = (Math.random() - 0.5) * 2;
+                this.gameState.market.vix += vixChange;
+                this.gameState.market.vix = Math.max(10, Math.min(80, this.gameState.market.vix));
+                
+                // Random market events
+                this.marketEvents.forEach(event => {
+                    if (Math.random() < event.probability) {
+                        this.triggerMarketEvent(event);
+                    }
+                });
+            }
+
+            triggerMarketEvent(event) {
+                for (const [key, range] of Object.entries(event.impact)) {
+                    const change = range[0] + Math.random() * (range[1] - range[0]);
+                    this.gameState.market[key] += change;
+                }
+                
+                this.addNewsItem(event.message);
+            }
+
+            addNewsItem(message) {
+                const newsTicker = document.getElementById('newsTicker');
+                const timeStr = new Date().toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+                
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `
+                    <div class="news-time">${timeStr}</div>
+                    <div>${message}</div>
+                `;
+                
+                newsTicker.insertBefore(newsItem, newsTicker.firstChild);
+                
+                // Keep only latest 10 news items
+                while (newsTicker.children.length > 10) {
+                    newsTicker.removeChild(newsTicker.lastChild);
+                }
+            }
+
+            renderPortfolio() {
+                const holdingsList = document.getElementById('holdingsList');
+                
+                if (this.gameState.portfolio.size === 0) {
+                    holdingsList.innerHTML = `
+                        <div style="text-align: center; color: #a0aec0; padding: 40px 20px; font-style: italic;">
+                            Your portfolio is empty. Start by buying some government bonds!
+                        </div>
+                    `;
+                    return;
+                }
+                
+                holdingsList.innerHTML = '';
+                
+                this.gameState.portfolio.forEach(holding => {
+                    const currentPrice = this.calculateAssetPrice(holding.asset);
+                    const currentValue = currentPrice * holding.quantity;
+                    const totalCost = holding.averageCost * holding.quantity;
+                    const pnl = currentValue - totalCost;
+                    const pnlPercent = (pnl / totalCost) * 100;
+                    
+                    const holdingElement = document.createElement('div');
+                    holdingElement.className = 'holding-item';
+                    holdingElement.innerHTML = `
+                        <div class="holding-info">
+                            <div class="holding-name">${holding.asset.name}</div>
+                            <div class="holding-details">
+                                ${holding.quantity} units @ $${holding.averageCost.toFixed(2)} avg
+                            </div>
+                        </div>
+                        <div class="holding-value">
+                            <div>$${currentValue.toLocaleString()}</div>
+                            <div class="holding-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
+                                ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0)} (${pnlPercent.toFixed(1)}%)
+                            </div>
+                        </div>
+                    `;
+                    
+                    holdingsList.appendChild(holdingElement);
+                });
+            }
+
+            updateUI() {
+                // Update header stats
+                document.getElementById('playerCash').textContent = 
+                    `$${this.gameState.player.cash.toLocaleString()}`;
+                
+                const portfolioValue = this.getPortfolioValue();
+                document.getElementById('portfolioValue').textContent = 
+                    `$${portfolioValue.toLocaleString()}`;
+                
+                const totalAssets = this.getTotalAssets();
+                document.getElementById('totalValue').textContent = 
+                    `$${totalAssets.toLocaleString()}`;
+                
+                const totalReturn = this.gameState.player.totalReturn;
+                const totalReturnPercent = this.gameState.player.totalInvested > 0 ? 
+                    (totalReturn / this.gameState.player.totalInvested) * 100 : 0;
+                document.getElementById('totalReturn').textContent = 
+                    `${totalReturnPercent >= 0 ? '+' : ''}${totalReturnPercent.toFixed(2)}%`;
+                document.getElementById('totalReturn').className = 
+                    `stat-value ${totalReturnPercent >= 0 ? 'positive' : 'negative'}`;
+                
+                document.getElementById('playerLevel').textContent = 
+                    `Level ${this.gameState.player.level}`;
+                
+                // Update portfolio count
+                document.getElementById('portfolioCount').textContent = 
+                    `${this.gameState.portfolio.size} Holdings`;
+                
+                // Update market indicators
+                document.getElementById('treasuryRate').textContent = 
+                    `${this.gameState.market.treasuryRate.toFixed(2)}%`;
+                document.getElementById('vixIndex').textContent = 
+                    this.gameState.market.vix.toFixed(1);
+                document.getElementById('inflationRate').textContent = 
+                    `${this.gameState.market.inflation.toFixed(1)}%`;
+                
+                // Update game time
+                const gameTime = Date.now() - this.gameState.time.gameStartTime;
+                const minutes = Math.floor(gameTime / 60000);
+                const seconds = Math.floor((gameTime % 60000) / 1000);
+                document.getElementById('gameTime').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            startGameLoop() {
+                setInterval(() => {
+                    this.updateMarketData();
+                    this.updateUI();
+                    this.renderPortfolio();
+                }, 5000); // Update every 5 seconds
+                
+                // UI update loop (more frequent)
+                setInterval(() => {
+                    this.updateUI();
+                }, 1000);
+            }
+        }
+
+        // Initialize game
+        let game;
+        window.addEventListener('DOMContentLoaded', () => {
+            game = new AssetManagerGame();
+        });
+    </script>
+    </script>
+</body>
+</html>
