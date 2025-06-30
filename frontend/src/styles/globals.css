@@ -1,0 +1,5 @@
+@tailwind utilities;
+
+@theme {
+  --spacing: 1em; 
+}
