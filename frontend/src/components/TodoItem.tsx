@@ -9,7 +9,7 @@ interface TodoItemProps {
 
 const TodoItem: React.FC<TodoItemProps> = ({ item, onDelete, onToggleCompletion }) => {
   return (
-    <div className="p-4 border rounded-md">
+    <div className="p-1 py-2 border rounded-md">
       <h3 className="text-lg font-bold">{item.title}</h3>
       {item.description && <p>{item.description}</p>}
       <p>Status: {item.completed ? 'Completed' : 'Pending'}</p>

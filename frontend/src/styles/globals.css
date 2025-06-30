@@ -1,3 +1,6 @@
+@import "tailwindcss";
+/* @import "daisyui"; */
+
 @tailwind utilities;
 
 @theme {
