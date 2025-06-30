@@ -1,3 +1,7 @@
 *.pyc
 *.ipynb
 *.venv/
+/backend/venv
+/node_modules
+frontend/package-lock.json
+frontend/package-lock.json
