@@ -7,8 +7,9 @@ export const todoService = {
   // Get all todos
   getAllTodos: async (): Promise<TodoItem[]> => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/items`);
-      return response.data;
+      return [];
+      // const response = await axios.get(`${API_BASE_URL}/items`);
+      // return response.data;
     } catch (error) {
       console.error('Error fetching todos:', error);
       throw error;

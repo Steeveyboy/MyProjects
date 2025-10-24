@@ -7,11 +7,15 @@ declare module "next-auth" {
       image?: string;
       isNewUser?: boolean;
     }
+    idToken?: string;
+    accessToken?: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     isNewUser?: boolean;
+    idToken?: string;
+    accessToken?: string;
   }
 }

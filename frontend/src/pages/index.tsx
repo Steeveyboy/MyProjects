@@ -125,13 +125,6 @@ const IndexPage: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Todo List</h1>
           <div className="flex items-center">
-            {session?.user?.image && (
-              <img 
-                src={session.user.image} 
-                alt={session.user.name || 'User'} 
-                className="w-8 h-8 rounded-full mr-2"
-              />
-            )}
             <span className="font-medium mr-3">{session?.user?.name}</span>
             <button 
               onClick={() => signOut({ callbackUrl: '/login' })}

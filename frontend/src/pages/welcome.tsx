@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { authService } from '../services/authService'; // Adjust the import path as necessary
 
 const Welcome = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [backendVerified, setBackendVerified] = useState(false);
+
 
   useEffect(() => {
     // If user is not authenticated, redirect to login
@@ -19,9 +23,34 @@ const Welcome = () => {
     if (userSession && userSession.user && !userSession.user.isNewUser) {
       router.push('/');
     }
+
+    // Verify the token with backend
+    if (session) {
+      const verifyToken = async () => {
+        try {
+          const result = await authService.verifyGoogleToken();
+          console.log('Token verified with backend:', result);
+          setBackendVerified(true);
+        } catch (error) {
+          console.error('Backend verification failed:', error);
+        }
+      };
+
+      verifyToken();
+    }
+
   }, [session, router]);
 
-  const [isLoading, setIsLoading] = useState(true);
+  // useEffect(() => {
+  //   if (session) {
+  //     setIsLoading(false);
+  //     };
+
+  //     verifyToken();
+  //   }
+  // }, [session]);
+
+  // }, [session, router]);
 
   useEffect(() => {
     if (session) {

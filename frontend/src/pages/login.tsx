@@ -2,6 +2,15 @@ import React from 'react';
 import { signIn } from 'next-auth/react';
 
 const Login = () => {
+  const handleSignIn = async () => {
+    try {
+      let res = await signIn('google', { callbackUrl: '/welcome' });
+    } catch (error) {
+      console.error('Sign in failed:', error);
+      // Handle sign-in error (e.g., show a notification)
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-4 bg-white rounded-lg shadow-lg">
@@ -12,7 +21,7 @@ const Login = () => {
         </p>
         
         <button
-          onClick={() => signIn('google', { callbackUrl: '/welcome' })}
+          onClick={() => handleSignIn()}
           className="flex items-center justify-center w-full p-2 space-x-2 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
           <svg 
