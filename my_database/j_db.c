@@ -30,8 +30,8 @@ typedef struct {
 
 typedef struct {
     uint32_t id;
-    char username[COLUMN_USERNAME_SIZE];
-    char email[COLUMN_EMAIL_SIZE];
+    char username[COLUMN_USERNAME_SIZE + 1];
+    char email[COLUMN_EMAIL_SIZE + 1];
 } Row;
 
 typedef struct {
@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
         Statement statement;
         switch (prepare_statement(input_buffer, &statement)) {
             case (PREPARE_SUCCESS):
-                printf("Prepared statement successfully. \n");
+                // printf("Prepared statement successfully. \n");
                 break;
             case(PREPARE_SYNTAX_ERROR):
                 printf("Syntax error. Could not parse statement. \n");
@@ -245,10 +245,11 @@ int main(int argc, char* argv[]) {
         // printf("Executed Statement \n");
         switch(execute_statement(&statement, table)){
             case(EXECUTE_SUCCESS):
-                printf("Executed statement successfully! \n");
+                // printf("Executed statement successfully! \n");
+                printf("Executed\n");
                 break;
             case(EXECUTE_TABLE_FULL):
-                printf("ERROR Table full. \n");
+                printf("Error: Table full.\n");
                 break;
         }
     }
