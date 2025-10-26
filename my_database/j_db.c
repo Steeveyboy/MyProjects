@@ -3,12 +3,46 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+
+#define COLUMN_USERNAME_SIZE 32
+#define COLUMN_EMAIL_SIZE 255
+#define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
+
+
+
+typedef enum {
+    META_COMMAND_SUCCESS,
+    META_COMMAND_UNRECOGNIZED
+} MetaCommandResult;
+
+typedef enum {
+    PREPARE_SUCCESS,
+    PREPARE_UNRECOGNIZED_STATEMENT
+} PrepareResult;
+
+typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
+
 
 typedef struct {
     char* buffer;
     size_t buffer_length;
     ssize_t input_length;
 } InputBuffer;
+
+typedef struct {
+    uint32_t id;
+    char username[COLUMN_USERNAME_SIZE];
+    char email[COLUMN_EMAIL_SIZE];
+} Row;
+
+typedef struct {
+    StatementType type;
+    Row row_to_insert;
+} Statement;
+
+
+
 
 InputBuffer* new_input_buffer() {
     InputBuffer* input_buffer = (InputBuffer*)malloc(sizeof(InputBuffer));
@@ -40,18 +74,71 @@ void close_input_buffer(InputBuffer* input_buffer) {
 
 void print_prompt() { printf("jdb > "); }
 
+bool do_meta_command(InputBuffer* input_buffer){
+    if (strcmp(input_buffer->buffer, ".exit") == 0){
+        exit(EXIT_SUCCESS);
+    } else {
+        return META_COMMAND_UNRECOGNIZED;
+    }
+}
+
+PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement){
+    if(strncmp(input_buffer->buffer, "insert", 6) == 0) {
+        statement->type = STATEMENT_INSERT;
+        int args_assigned = sscanf(
+            input_buffer->buffer, "insert %d %s %s", &(statement->row_to_insert.id),
+            statement
+        );
+
+        return PREPARE_SUCCESS;
+    }
+    if (strncmp(input_buffer->buffer, "select", 6) == 0) {
+        statement->type = STATEMENT_SELECT;
+        return PREPARE_SUCCESS;
+    }
+
+    return PREPARE_UNRECOGNIZED_STATEMENT;
+}
+
+void execute_statement(Statement* statement){
+    switch (statement->type) {
+        case(STATEMENT_INSERT):
+            printf("INSERTING SOMETHING");
+            break;
+        
+        case(STATEMENT_SELECT):
+            printf("SELECTING SOMETHING");
+            break;
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     InputBuffer* input_buffer = new_input_buffer();
     while(1){
         print_prompt();
         read_input(input_buffer);
-        if(strcmp(input_buffer->buffer, ".exit") == 0){
-            close_input_buffer(input_buffer);
-            exit(EXIT_SUCCESS);
+
+        if (input_buffer->buffer[0] == '.') {
+            switch (do_meta_command(input_buffer)) {
+                case (META_COMMAND_SUCCESS):
+                    continue;
+                case (META_COMMAND_UNRECOGNIZED):
+                    printf("Unrecognized command '%s' \n", input_buffer->buffer);
+                    continue;
+            }
         }
-        else{
-            printf("Unrecognizable command '%s' \n", input_buffer->buffer);
+
+        Statement statement;
+        switch (prepare_statement(input_buffer, &statement)) {
+            case (PREPARE_SUCCESS):
+                break;
+            case (PREPARE_UNRECOGNIZED_STATEMENT):
+                printf("Unrecognized Keyword at the start of '%s' \n", input_buffer->buffer);
+                continue;
         }
+
+        execute_statement(&statement);
+        printf("Executed Statement \n");
     }
 }
