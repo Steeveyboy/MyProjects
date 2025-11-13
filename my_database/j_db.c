@@ -381,8 +381,8 @@ void leaf_node_insert(Cursor* cursor, uint32_t key, Row* value) {
     uint32_t num_cells = *leaf_node_num_cells(node);
     if (num_cells >= LEAF_NODE_MAX_CELLS) {
         // Node full
-        printf("Need to implement splitting leaf node \n");
-        exit(EXIT_FAILURE);
+        leaf_node_split_and_insert(cursor, key, value);
+        return;
     }
 
     if (cursor->cell_num < num_cells) {
@@ -496,14 +496,33 @@ PrepareResult prepare_statement(InputBuffer* input_buffer, Statement* statement)
     return PREPARE_UNRECOGNIZED_STATEMENT;
 }
 
+uint32_t get_unused_page_num(Pager* pager) {
+    return pager->num_pages;
+}
+
+void leaf_node_split_and_insert(Cursor* cursor, uint32_t key, Row* value) {
+    // Create new node and move half the cells over
+    void* old_node = get_page(cursor->table->pager, cursor->page_num);
+    uint32_t new_page_num = get_unused_page_num(cursor->table->pager);
+    void* new_node = get_page(cursor->table->pager, new_page_num);
+    initialize_leaf_node(new_node);
+
+
+    //Move half the cells to new node
+    // for (int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) {
+    //     //Move from old node to new node
+    //     void* destination_node;
+    //     if (i >= LEAF_NODE_MAX_CELLS / 2) {
+    //         destination_node = new_node;
+    //     } else {
+    //         destination_node = old_node;
+    //     }
+}
 
 ExecuteResult execute_insert(Statement* statement, Table* table){
     void* node = get_page(table->pager, table->root_page_num);
 
     uint32_t num_cells = (*leaf_node_num_cells(node));
-    if (num_cells >= LEAF_NODE_MAX_CELLS){
-        return EXECUTE_TABLE_FULL;
-    }
 
     Row* row_to_insert = &(statement->row_to_insert);
 
