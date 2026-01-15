@@ -364,6 +364,7 @@ void* get_page(Pager* pager, uint32_t page_num){
 
 
 Table* db_open(const char* filename) {
+    /* Open DB file and return Table struct */
     Pager* pager = pager_open(filename);
 
     Table* table = (Table*)malloc(sizeof(Table));
@@ -380,6 +381,7 @@ Table* db_open(const char* filename) {
 }
 
 void pager_flush(Pager* pager, uint32_t page_num){
+    /* Write a page to disk */
     if (pager->pages[page_num] == NULL){
         printf("Tried to flush null page. \n");
         exit(EXIT_FAILURE);
@@ -451,6 +453,7 @@ void* cursor_value(Cursor* cursor){
 }
 
 void cursor_advance(Cursor* cursor){
+    /* Advance the cursor to the next row */
     uint32_t page_num = cursor->page_num;
     void* node = get_page(cursor->table->pager, page_num);
 
