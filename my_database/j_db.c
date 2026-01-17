@@ -361,8 +361,6 @@ void* get_page(Pager* pager, uint32_t page_num){
 
 }
 
-
-
 Table* db_open(const char* filename) {
     /* Open DB file and return Table struct */
     Pager* pager = pager_open(filename);
