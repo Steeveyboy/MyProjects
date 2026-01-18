@@ -645,6 +645,7 @@ Cursor* table_find(Table* table, uint32_t key) {
     }
 }
 
+
 Cursor* table_start(Table* table) {
     // Create cursor, to rep start of table
     Cursor* cursor = table_find(table, 0);
